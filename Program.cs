@@ -1,20 +1,21 @@
-// Este using permite usar RepositorioPropietario sin escribir el namespace completo.
-using InmobiliariaUlP_2025.Models;
+using InmobiliariaUlP_2025.Repositories.Implementations;
+using InmobiliariaUlP_2025.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Registramos el soporte para controladores + vistas (MVC).
+// MVC
 builder.Services.AddControllersWithViews();
 
-// Registramos RepositorioPropietario como servicio de "Scoped".
-// Scoped = se crea una instancia por cada request HTTP.
-// Así luego lo podemos pedir en los controladores por constructor.
-builder.Services.AddScoped<RepositorioPropietario>();
+// Registramos los repositorios correctamente
+builder.Services.AddScoped<IPropietarioRepository, PropietarioRepository>();
+builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
+
+
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -23,7 +24,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();

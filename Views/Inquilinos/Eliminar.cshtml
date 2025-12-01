@@ -1,0 +1,21 @@
+@model InmobiliariaUlP_2025.Models.Inquilino
+
+@{
+    ViewData["Title"] = "Eliminar inquilino";
+}
+
+<h1>Eliminar inquilino</h1>
+
+<p>¿Estás seguro que querés eliminar este inquilino?</p>
+
+<ul>
+    <li><strong>DNI:</strong> @Model.Dni</li>
+    <li><strong>Apellido:</strong> @Model.Apellido</li>
+    <li><strong>Nombre:</strong> @Model.Nombre</li>
+</ul>
+
+<form method="post" asp-action="ConfirmarEliminar">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

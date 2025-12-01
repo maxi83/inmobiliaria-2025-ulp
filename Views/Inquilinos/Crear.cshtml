@@ -1,12 +1,11 @@
-@model InmobiliariaUlP_2025.Models.Propietario
+@model InmobiliariaUlP_2025.Models.Inquilino
 
 @{
-    ViewData["Title"] = "Crear propietario";
+    ViewData["Title"] = "Crear inquilino";
 }
 
-<h1>Crear propietario</h1>
+<h1>Crear inquilino</h1>
 
-<!-- Muestra todos los mensajes de error -->
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form method="post" asp-action="Crear">
@@ -42,12 +41,9 @@
     </div>
 
     <button type="submit" class="btn btn-success">Guardar</button>
-    <a href="/Propietarios" class="btn btn-secondary">Volver al listado</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>

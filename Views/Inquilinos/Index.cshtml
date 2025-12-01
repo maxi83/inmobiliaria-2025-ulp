@@ -1,0 +1,40 @@
+@model List<InmobiliariaUlP_2025.Models.Inquilino>
+
+@{
+    ViewData["Title"] = "Inquilinos";
+}
+
+<h1>Listado de Inquilinos</h1>
+
+<a class="btn btn-primary mb-3" asp-action="Crear">Crear nuevo</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>DNI</th>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.Dni</td>
+                <td>@i.Apellido</td>
+                <td>@i.Nombre</td>
+                <td>@i.Email</td>
+                <td>@i.Telefono</td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@i.Id" class="btn btn-warning btn-sm">Editar</a>
+
+                    <a asp-action="Eliminar" asp-route-id="@i.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
