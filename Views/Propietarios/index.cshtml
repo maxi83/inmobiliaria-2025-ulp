@@ -1,0 +1,57 @@
+@* 
+    @model = indica cuál es el tipo de modelo que la vista recibe desde el controlador.
+    En nuestro caso, el controlador hace:
+        var lista = repositorioPropietario.ObtenerTodos();
+        return View(lista);
+    Esa "lista" es una List<Propietario>, por eso el tipo es:
+        List<InmobiliariaUlP_2025.Models.Propietario>
+*@
+@model List<InmobiliariaUlP_2025.Models.Propietario>
+
+@*
+    ViewData["Title"] = título de la página.
+    Se usa en _Layout.cshtml para poner el título en la pestaña del navegador.
+*@
+@{
+    ViewData["Title"] = "Listado de Propietarios";
+}
+
+<h1>Propietarios</h1>
+
+<a href="/Propietarios/Crear" class="btn btn-primary">Crear nuevo propietario</a>
+
+<table class="table">
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>DNI</th>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @* 
+            foreach = bucle que recorre cada elemento de la lista "Model".
+            Model = nombre que tiene por defecto el objeto que llega a la vista
+            desde el controlador (en este caso, la List<Propietario>).
+        *@
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Dni</td>
+                <td>@p.Apellido</td>
+                <td>@p.Nombre</td>
+                <td>@p.Email</td>
+                <td>@p.Telefono</td>
+                <td>
+                    <a href="/Propietarios/Editar/@p.Id" class="btn btn-sm btn-primary">Editar</a>
+                    <a href="/Propietarios/Eliminar/@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -113,3 +113,4 @@ C:\Users\Maxi\Documents\InmobiliariaULP-2025\bin\Debug\net9.0\runtimes\win-x64\n
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\bin\Debug\net9.0\runtimes\win\lib\net8.0\System.Windows.Extensions.dll
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\InmobiliariaUlP-2025.csproj.AssemblyReference.cache
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\Inmobili.9DC55099.Up2Date
+C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\InmobiliariaUlP-2025.sourcelink.json

@@ -1,0 +1,41 @@
+@* La vista trabaja con un Propietario que viene del controlador (repositorio.Buscar(id)) *@
+@model InmobiliariaUlP_2025.Models.Propietario
+
+@{
+    ViewData["Title"] = "Editar propietario";
+}
+
+<h1>Editar propietario</h1>
+
+<form method="post" action="/Propietarios/Editar">
+    @* Id oculto para saber a quién estamos editando *@
+    <input type="hidden" name="Id" value="@Model.Id" />
+
+    <div class="mb-3">
+        <label for="Dni">DNI</label>
+        <input type="text" id="Dni" name="Dni" class="form-control" value="@Model.Dni" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Apellido">Apellido</label>
+        <input type="text" id="Apellido" name="Apellido" class="form-control" value="@Model.Apellido" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Nombre">Nombre</label>
+        <input type="text" id="Nombre" name="Nombre" class="form-control" value="@Model.Nombre" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Email">Email</label>
+        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Telefono">Teléfono</label>
+        <input type="text" id="Telefono" name="Telefono" class="form-control" value="@Model.Telefono" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="/Propietarios" class="btn btn-secondary">Volver al listado</a>
+</form>

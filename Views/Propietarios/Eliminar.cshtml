@@ -1,0 +1,22 @@
+@model InmobiliariaUlP_2025.Models.Propietario
+
+<h2>Eliminar propietario</h2>
+
+<div class="alert alert-danger">
+    <strong>¿Seguro que querés eliminar este propietario?</strong>
+</div>
+
+<table class="table table-bordered">
+    <tr><th>DNI</th><td>@Model.Dni</td></tr>
+    <tr><th>Apellido</th><td>@Model.Apellido</td></tr>
+    <tr><th>Nombre</th><td>@Model.Nombre</td></tr>
+    <tr><th>Email</th><td>@Model.Email</td></tr>
+    <tr><th>Teléfono</th><td>@Model.Telefono</td></tr>
+</table>
+
+<form method="post" action="/Propietarios/EliminarConfirmado">
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
+    <a href="/Propietarios" class="btn btn-secondary">Cancelar</a>
+</form>
