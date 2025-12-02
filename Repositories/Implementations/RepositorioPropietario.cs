@@ -2,13 +2,12 @@ using InmobiliariaUlP_2025.Models;
 using InmobiliariaUlP_2025.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using System.Collections.Generic;
 
 namespace InmobiliariaUlP_2025.Repositories.Implementations
 {
-    public class PropietarioRepository : RepositorioBase, IPropietarioRepository
+    public class RepositorioPropietario : RepositorioBase, IRepositorioPropietario
     {
-        public PropietarioRepository(IConfiguration configuration)
+        public RepositorioPropietario(IConfiguration configuration)
             : base(configuration)
         {
         }
@@ -71,7 +70,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         }
 
         // ============================================
-        // OBTENER POR ID
+        // BUSCAR POR ID
         // ============================================
         public Propietario? Buscar(int id)
         {

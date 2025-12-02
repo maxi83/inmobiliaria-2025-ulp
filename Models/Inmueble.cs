@@ -3,69 +3,50 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InmobiliariaUlP_2025.Models
 {
-    // =========================================================
-    // 💙 CLASE INMUEBLE
-    //
-    // Representa una propiedad que se alquila.
-    // Tiene un Propietario, dirección, precio, tipo, uso, etc.
-    //
-    // NOTA: Aunque no usemos Entity Framework, los atributos
-    // [Key] o [ForeignKey] NO molestan, y son útiles si el profe
-    // revisa que esté correctamente modelado.
-    // =========================================================
     public class Inmueble
     {
-        // Constructor vacío requerido
         public Inmueble() { }
 
-        // ---------- ID ----------
-        [Key] // clave primaria
+        [Key]
         public int Id { get; set; }
 
-        // ---------- RELACIÓN ----------
-        // Id del propietario dueño del inmueble
-        [ForeignKey("Propietario")]
+        // ---- RELACIÓN ----
+        [Required(ErrorMessage = "Debe seleccionar un propietario.")]
         public int PropietarioId { get; set; }
 
-        // Relación 1:N con Propietario (opcional para ADO.NET)
         public virtual Propietario? Propietario { get; set; }
 
-        // ---------- DATOS DEL INMUEBLE ----------
-        // Dirección física del inmueble
+        // ---- CAMPOS ----
+        [Required(ErrorMessage = "La dirección es obligatoria.")]
+        [StringLength(200, ErrorMessage = "La dirección no puede superar los 200 caracteres.")]
         public string Direccion { get; set; } = "";
 
-        // Tipo de uso: comercial o residencial
+        [Required(ErrorMessage = "Debe elegir el uso del inmueble.")]
         public Uso Uso { get; set; }
 
-        // Tipo de inmueble
+        [Required(ErrorMessage = "Debe elegir el tipo de inmueble.")]
         public Tipo Tipo { get; set; }
 
-        // Cantidad de ambientes
+        [Range(1, 20, ErrorMessage = "Los ambientes deben estar entre 1 y 20.")]
         public int NoAmbientes { get; set; }
 
-        // Ubicación geográfica opcional
         public double Latitud { get; set; }
         public double Longitud { get; set; }
 
-        // Precio actual del alquiler
+        [Range(1, 9999999, ErrorMessage = "Debe ingresar un precio válido.")]
         public decimal Precio { get; set; }
 
-        // Estado: disponible, ocupado, suspendido
+        [Required(ErrorMessage = "Debe seleccionar la disponibilidad.")]
         public Disponibilidad Disponibilidad { get; set; }
     }
 
-    // =========================================================
-    //           ENUMERACIONES (listas de valores fijos)
-    // =========================================================
-
-    // Cómo se usa el inmueble
+    // ---- ENUMS ----
     public enum Uso
     {
         COMERCIAL,
         RESIDENCIAL,
     }
 
-    // Qué tipo de inmueble es
     public enum Tipo
     {
         LOCAL,
@@ -74,7 +55,6 @@ namespace InmobiliariaUlP_2025.Models
         DEPARTAMENTO,
     }
 
-    // Estado actual del inmueble
     public enum Disponibilidad
     {
         OCUPADO,

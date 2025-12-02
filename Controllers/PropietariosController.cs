@@ -6,12 +6,13 @@ namespace InmobiliariaUlP_2025.Controllers
 {
     public class PropietariosController : Controller
     {
-        private readonly IPropietarioRepository repositorioPropietario;
+        private readonly IRepositorioPropietario repositorioPropietario;
 
-        public PropietariosController(IPropietarioRepository repositorioPropietario)
+        public PropietariosController(IRepositorioPropietario repositorioPropietario)
         {
-            this.repositorioPropietario = repositorioPropietario;
+                 this.repositorioPropietario = repositorioPropietario;
         }
+
 
         public IActionResult Index()
         {

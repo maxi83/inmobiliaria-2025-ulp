@@ -1,0 +1,57 @@
+@model InmobiliariaUlP_2025.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Crear inmueble";
+}
+
+<h1>Crear inmueble</h1>
+
+<form asp-action="Crear" method="post">
+
+    <div class="mb-3">
+        <label class="form-label">Propietario</label>
+        <select class="form-select" asp-for="PropietarioId">
+            <option value="">Seleccione propietario...</option>
+            @foreach (var p in ViewBag.Propietarios)
+            {
+                <option value="@p.Id">@p.Apellido @p.Nombre</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Direccion"></label>
+        <input asp-for="Direccion" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Uso"></label>
+        <select asp-for="Uso" class="form-select"
+                asp-items="Html.GetEnumSelectList<Uso>()"></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Tipo"></label>
+        <select asp-for="Tipo" class="form-select"
+                asp-items="Html.GetEnumSelectList<Tipo>()"></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NoAmbientes"></label>
+        <input asp-for="NoAmbientes" class="form-control" type="number" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Precio"></label>
+        <input asp-for="Precio" class="form-control" type="number" step="0.01" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Disponibilidad"></label>
+        <select asp-for="Disponibilidad" class="form-select"
+                asp-items="Html.GetEnumSelectList<Disponibilidad>()"></select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="/Inmuebles" class="btn btn-secondary">Volver</a>
+</form>
