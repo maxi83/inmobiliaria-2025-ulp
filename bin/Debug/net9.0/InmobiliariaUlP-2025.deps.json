@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v9.0": {
       "InmobiliariaUlP-2025/1.0.0": {
         "dependencies": {
-          "MySql.Data": "9.5.0"
+          "MySql.Data": "9.5.0",
+          "MySqlConnector": "2.5.0"
         },
         "runtime": {
           "InmobiliariaUlP-2025.dll": {}
@@ -59,6 +60,12 @@
           }
         }
       },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.2": {},
+      "Microsoft.Extensions.Logging.Abstractions/8.0.2": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2"
+        }
+      },
       "MySql.Data/9.5.0": {
         "dependencies": {
           "BouncyCastle.Cryptography": "2.6.2",
@@ -99,6 +106,18 @@
             "rid": "win-x64",
             "assetType": "native",
             "fileVersion": "4.3.0.1"
+          }
+        }
+      },
+      "MySqlConnector/2.5.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.2"
+        },
+        "runtime": {
+          "lib/net9.0/MySqlConnector.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.5.0.0"
           }
         }
       },
@@ -202,12 +221,33 @@
       "path": "k4os.hash.xxhash/1.0.8",
       "hashPath": "k4os.hash.xxhash.1.0.8.nupkg.sha512"
     },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3iE7UF7MQkCv1cxzCahz+Y/guQbTqieyxyaWKhrRO91itI9cOKO76OHeQDahqG4MmW5umr3CcCvGmK92lWNlbg==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/8.0.2",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/8.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-nroMDjS7hNBPtkZqVBbSiQaQjWRDxITI8Y7XnDs97rqG3EbzVTNLZQf7bIeUJcaHOV8bca47s1Uxq94+2oGdxA==",
+      "path": "microsoft.extensions.logging.abstractions/8.0.2",
+      "hashPath": "microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512"
+    },
     "MySql.Data/9.5.0": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-pbIrDv7vuvMlok6ldjliFOeb5fpGofAInUhG/8LraQBqT2a2xZTcAVjm/GyfZ9ZyjZeHJLWuMRbe0uI98sCoWg==",
       "path": "mysql.data/9.5.0",
       "hashPath": "mysql.data.9.5.0.nupkg.sha512"
+    },
+    "MySqlConnector/2.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hoAwfHHF8DlRRqwHOhN3u1KLi+XbX/4LPS7Anfa+SYC97vRyIfdEOEEfj1L50q01Ik8aDNvmDrNmu/VPFiAiaQ==",
+      "path": "mysqlconnector/2.5.0",
+      "hashPath": "mysqlconnector.2.5.0.nupkg.sha512"
     },
     "System.Configuration.ConfigurationManager/8.0.0": {
       "type": "package",

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace InmobiliariaUlP_2025.Repositories // ← ESTE ES EL BUENO
 {

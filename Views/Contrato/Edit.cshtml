@@ -1,0 +1,40 @@
+@model InmobiliariaUlP_2025.Models.Contrato
+@{
+    ViewData["Title"] = "Editar Contrato";
+}
+
+<h2>Editar Contrato</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label class="form-label">Inmueble</label>
+        <select asp-for="InmuebleId" class="form-control" asp-items="ViewBag.Inmuebles"></select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Inquilino</label>
+        <select asp-for="InquilinoId" class="form-control" asp-items="ViewBag.Inquilinos"></select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Fecha Inicio</label>
+        <input asp-for="FechaInicio" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Fecha Fin</label>
+        <input asp-for="FechaFin" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Monto Mensual</label>
+        <input asp-for="MontoMensual" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+</form>

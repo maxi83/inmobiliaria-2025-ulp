@@ -20,6 +20,30 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Contrato/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhdG9cQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Contrato/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhdG9cRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Contrato/Detalle.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhdG9cRGV0YWxsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Contrato/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhdG9cRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Contrato/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhdG9cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Contrato/Pagos.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udHJhdG9cUGFnb3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Maxi/Documents/InmobiliariaULP-2025/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

@@ -1,11 +1,26 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MySqlConnector;
 
 namespace InmobiliariaUlP_2025.Models
 {
     public class Inmueble
     {
         public Inmueble() { }
+
+        public Inmueble(MySqlDataReader reader)
+        {
+            Id = reader.GetInt32("Id");
+            PropietarioId = reader.GetInt32("PropietarioId");
+            Direccion = reader.GetString("Direccion");
+            Uso = (Uso)reader.GetInt32("Uso");
+            Tipo = (Tipo)reader.GetInt32("Tipo");
+            NoAmbientes = reader.GetInt32("NoAmbientes");
+            Latitud = reader.GetDouble("Latitud");
+            Longitud = reader.GetDouble("Longitud");
+            Precio = reader.GetDecimal("Precio");
+            Disponibilidad = (Disponibilidad)reader.GetInt32("Disponibilidad");
+        }
 
         [Key]
         public int Id { get; set; }

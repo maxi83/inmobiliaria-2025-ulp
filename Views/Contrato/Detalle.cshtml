@@ -1,0 +1,44 @@
+@model InmobiliariaUlP_2025.Models.Contrato
+
+@{
+    ViewData["Title"] = "Detalle del contrato";
+}
+
+<h2>Detalle del contrato</h2>
+
+<ul class="nav nav-tabs mt-3">
+    <li class="nav-item">
+        <a class="nav-link active" href="#">Contrato</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("Detalle", "Inquilino", new { id = Model.InquilinoId })">Inquilino</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("Detalle", "Inmueble", new { id = Model.InmuebleId })">Inmueble</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("Index", "Pago", new { contratoId = Model.Id })">Pagos</a>
+    </li>
+</ul>
+
+<div class="mt-4">
+    <dl class="row">
+        <dt class="col-sm-3">Inquilino</dt>
+        <dd class="col-sm-9">@Model.InquilinoId</dd>
+
+        <dt class="col-sm-3">Inmueble</dt>
+        <dd class="col-sm-9">@Model.InmuebleId</dd>
+
+        <dt class="col-sm-3">Fecha Inicio</dt>
+        <dd class="col-sm-9">@Model.FechaInicio</dd>
+
+        <dt class="col-sm-3">Fecha Fin</dt>
+        <dd class="col-sm-9">@Model.FechaFin</dd>
+
+        <dt class="col-sm-3">Monto Mensual</dt>
+        <dd class="col-sm-9">$@Model.MontoMensual</dd>
+    </dl>
+
+    <a href="@Url.Action("Editar", new { id = Model.Id })" class="btn btn-warning">Editar</a>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Volver</a>
+</div>

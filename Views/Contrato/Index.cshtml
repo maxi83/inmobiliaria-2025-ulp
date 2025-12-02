@@ -1,0 +1,43 @@
+@model IEnumerable<InmobiliariaUlP_2025.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contratos";
+}
+
+<h2>Contratos</h2>
+
+<p>
+    <a class="btn btn-primary" asp-controller="Contrato" asp-action="Create">Nuevo Contrato</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Inmueble</th>
+            <th>Inquilino</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Monto</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contrato in Model)
+        {
+            <tr>
+                <td>@contrato.Id</td>
+                <td>@contrato.InmuebleId</td>
+                <td>@contrato.InquilinoId</td>
+                <td>@contrato.FechaInicio</td>
+                <td>@contrato.FechaFin</td>
+                <td>@contrato.MontoMensual</td>
+                <td>
+                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@contrato.Id">Editar</a>
+                    <a class="btn btn-sm btn-info" asp-action="Pagos" asp-route-id="@contrato.Id">Pagos</a>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@contrato.Id">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

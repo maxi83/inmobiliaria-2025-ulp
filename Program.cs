@@ -1,5 +1,6 @@
 using InmobiliariaUlP_2025.Repositories.Implementations;
 using InmobiliariaUlP_2025.Repositories.Interfaces;
+using InmobiliariaUlP_2025.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,9 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Registramos los repositorios correctamente
-builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
-builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
+builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
+builder.Services.AddScoped<IRepositorioPago, RepositorioPago>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
+builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
+builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
+
 
 
 

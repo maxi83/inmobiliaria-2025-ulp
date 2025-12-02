@@ -1,0 +1,32 @@
+@model IEnumerable<InmobiliariaUlP_2025.Models.Pago>
+
+@{
+    ViewData["Title"] = "Pagos del Contrato";
+}
+
+<h2>Pagos del Contrato</h2>
+
+<p>
+    <a class="btn btn-primary" asp-controller="Pago" asp-action="Create" asp-route-contratoId="@ViewBag.ContratoId">Registrar Pago</a>
+    <a class="btn btn-secondary" asp-controller="Contrato" asp-action="Index">Volver</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>N° Pago</th>
+            <th>Fecha</th>
+            <th>Importe</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pago in Model)
+        {
+            <tr>
+                <td>@pago.NoPago</td>
+                <td>@pago.Fecha</td>
+                <td>$ @pago.Importe</td>
+            </tr>
+        }
+    </tbody>
+</table>

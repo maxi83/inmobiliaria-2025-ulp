@@ -1,0 +1,23 @@
+@model InmobiliariaUlP_2025.Models.Contrato
+
+@{
+    ViewData["Title"] = "Eliminar Contrato";
+}
+
+<h2>Eliminar Contrato</h2>
+
+<p>¿Estás seguro que querés eliminar este contrato?</p>
+
+<ul>
+    <li><strong>ID:</strong> @Model.Id</li>
+    <li><strong>Inmueble:</strong> @Model.InmuebleId</li>
+    <li><strong>Inquilino:</strong> @Model.InquilinoId</li>
+    <li><strong>Inicio:</strong> @Model.FechaInicio</li>
+    <li><strong>Fin:</strong> @Model.FechaFin</li>
+</ul>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger" type="submit">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
