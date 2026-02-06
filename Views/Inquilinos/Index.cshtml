@@ -6,6 +6,20 @@
 
 <h1>Listado de Inquilinos</h1>
 
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 <a class="btn btn-primary mb-3" asp-action="Crear">Crear nuevo</a>
 
 <table class="table table-bordered table-striped">
@@ -30,9 +44,13 @@
                 <td>@i.Email</td>
                 <td>@i.Telefono</td>
                 <td>
-                    <a asp-action="Editar" asp-route-id="@i.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Editar" asp-route-id="@i.Id" class="btn btn-warning btn-sm">
+                        Editar
+                    </a>
 
-                    <a asp-action="Eliminar" asp-route-id="@i.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                    <a asp-action="Eliminar" asp-route-id="@i.Id" class="btn btn-danger btn-sm">
+                        Eliminar
+                    </a>
                 </td>
             </tr>
         }

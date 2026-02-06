@@ -1,16 +1,16 @@
 @model IEnumerable<InmobiliariaUlP_2025.Models.Pago>
 
 @{
-    ViewData["Title"] = "Pagos del contrato";
+    ViewData["Title"] = "Pagos";
+    var contrato = ViewBag.Contrato;
 }
 
 <h2>Pagos del contrato</h2>
 
 <a class="btn btn-primary mb-3"
-   asp-controller="Pago"
    asp-action="Crear"
-   asp-route-contratoId="@ViewBag.Contrato.Id">
-    Nuevo pago
+   asp-route-contratoId="@contrato.Id">
+    Nuevo Pago
 </a>
 
 <table class="table table-bordered">
@@ -19,6 +19,7 @@
             <th>N° Pago</th>
             <th>Fecha</th>
             <th>Importe</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -28,13 +29,14 @@
                 <td>@p.NoPago</td>
                 <td>@p.FechaPago</td>
                 <td>$ @p.Importe</td>
+                <td>
+                    <a class="btn btn-danger btn-sm"
+                       asp-action="Eliminar"
+                       asp-route-id="@p.Id">
+                        Eliminar
+                    </a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
-
-<a asp-controller="Contrato"
-   asp-action="Index"
-   class="btn btn-secondary">
-    Volver
-</a>

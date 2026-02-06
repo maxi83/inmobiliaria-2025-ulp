@@ -4,8 +4,9 @@
     ViewData["Title"] = "Detalle del contrato";
 }
 
-<h2>Detalle del contrato</h2>
+<h2>Detalle del Contrato</h2>
 
+<!-- NAV TABS -->
 <ul class="nav nav-tabs mt-3">
     <li class="nav-item">
         <a class="nav-link active" href="#">Contrato</a>
@@ -21,13 +22,25 @@
     </li>
 </ul>
 
+<!-- MENSAJE DE MULTA -->
+@if (TempData["Multa"] != null)
+{
+    <div class="alert alert-warning mt-3">
+        <strong>Multa por rescisión anticipada:</strong>
+        $@TempData["Multa"]
+    </div>
+}
+
 <div class="mt-4">
     <dl class="row">
+        <dt class="col-sm-3">Número de Contrato</dt>
+        <dd class="col-sm-9">@Model.NumeroContrato</dd>
+
         <dt class="col-sm-3">Inquilino</dt>
-        <dd class="col-sm-9">@Model.InquilinoId</dd>
+        <dd class="col-sm-9">@Model.Inquilino?.Apellido, @Model.Inquilino?.Nombre</dd>
 
         <dt class="col-sm-3">Inmueble</dt>
-        <dd class="col-sm-9">@Model.InmuebleId</dd>
+        <dd class="col-sm-9">@Model.Inmueble?.Direccion</dd>
 
         <dt class="col-sm-3">Fecha Inicio</dt>
         <dd class="col-sm-9">@Model.FechaInicio</dd>
@@ -40,5 +53,11 @@
     </dl>
 
     <a href="@Url.Action("Editar", new { id = Model.Id })" class="btn btn-warning">Editar</a>
+
+    <a href="@Url.Action("Rescindir", new { id = Model.Id })"
+       class="btn btn-danger mx-2">
+        Rescindir Contrato
+    </a>
+
     <a href="@Url.Action("Index")" class="btn btn-secondary">Volver</a>
 </div>

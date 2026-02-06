@@ -1,0 +1,23 @@
+@model InmobiliariaUlP_2025.Models.Pago
+
+@{
+    ViewData["Title"] = "Eliminar Pago";
+}
+
+<h2>Eliminar Pago</h2>
+
+<p>¿Seguro que desea eliminar este pago?</p>
+
+<ul>
+    <li><strong>N° Pago:</strong> @Model.NoPago</li>
+    <li><strong>Fecha:</strong> @Model.FechaPago</li>
+    <li><strong>Importe:</strong> $ @Model.Importe</li>
+</ul>
+
+<form asp-action="Eliminar" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index"
+       asp-route-contratoId="@Model.ContratoId"
+       class="btn btn-secondary">Cancelar</a>
+</form>

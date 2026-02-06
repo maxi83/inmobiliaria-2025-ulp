@@ -1,0 +1,34 @@
+@model InmobiliariaUlP_2025.Models.Contrato
+
+@{
+    ViewData["Title"] = "Rescindir contrato";
+}
+
+<h2>Rescindir contrato</h2>
+
+<p>
+    <strong>Inmueble:</strong> @Model.Inmueble?.Direccion <br />
+    <strong>Inquilino:</strong> @Model.Inquilino?.Apellido @Model.Inquilino?.Nombre <br />
+    <strong>Fecha inicio:</strong> @Model.FechaInicio.ToShortDateString() <br />
+    <strong>Fecha fin original:</strong> @Model.FechaFin.ToShortDateString()
+</p>
+
+<form asp-action="Terminar" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <div class="mb-3">
+        <label class="form-label">Nueva fecha de finalización</label>
+        <input type="date"
+               name="nuevaFechaFin"
+               class="form-control"
+               required />
+    </div>
+
+    <button type="submit" class="btn btn-danger">
+        Rescindir contrato
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancelar
+    </a>
+</form>

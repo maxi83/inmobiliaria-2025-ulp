@@ -1,22 +1,35 @@
-@model InmobiliariaUlP_2025.Models.Propietario
+@model Propietario
 
-<h2>Eliminar propietario</h2>
+@{
+    ViewData["Title"] = "Eliminar Propietario";
+}
 
-<div class="alert alert-danger">
-    <strong>¿Seguro que querés eliminar este propietario?</strong>
+<h1>Eliminar Propietario</h1>
+
+<h3>¿Está seguro que desea eliminar este propietario?</h3>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">DNI</dt>
+        <dd class="col-sm-10">@Model.Dni</dd>
+
+        <dt class="col-sm-2">Apellido</dt>
+        <dd class="col-sm-10">@Model.Apellido</dd>
+
+        <dt class="col-sm-2">Nombre</dt>
+        <dd class="col-sm-10">@Model.Nombre</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Teléfono</dt>
+        <dd class="col-sm-10">@Model.Telefono</dd>
+    </dl>
+
+    <form asp-action="Eliminar" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Eliminar definitivamente" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
 </div>
-
-<table class="table table-bordered">
-    <tr><th>DNI</th><td>@Model.Dni</td></tr>
-    <tr><th>Apellido</th><td>@Model.Apellido</td></tr>
-    <tr><th>Nombre</th><td>@Model.Nombre</td></tr>
-    <tr><th>Email</th><td>@Model.Email</td></tr>
-    <tr><th>Teléfono</th><td>@Model.Telefono</td></tr>
-</table>
-
-<form method="post" action="/Propietarios/EliminarConfirmado">
-    <input type="hidden" name="id" value="@Model.Id" />
-
-    <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
-    <a href="/Propietarios" class="btn btn-secondary">Cancelar</a>
-</form>

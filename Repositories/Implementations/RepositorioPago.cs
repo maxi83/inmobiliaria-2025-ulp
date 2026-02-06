@@ -2,75 +2,69 @@ using MySqlConnector;
 using InmobiliariaUlP_2025.Models;
 using InmobiliariaUlP_2025.Repositories.Interfaces;
 
-namespace InmobiliariaUlP_2025.Repositories
+namespace InmobiliariaUlP_2025.Repositories.Implementations
 {
     public class RepositorioPago : RepositorioBase, IRepositorioPago
     {
-        public RepositorioPago(IConfiguration configuration) : base(configuration)
-        {
-        }
+        public RepositorioPago(IConfiguration config) : base(config) { }
 
         public int Alta(Pago pago)
         {
-            using var connection = GetConnection();
+            using var conn = GetConnection();
+            var sql = @"
+                INSERT INTO Pagos (NoPago, FechaPago, Importe, ContratoId)
+                VALUES (@noPago, @fecha, @importe, @contratoId);
+                SELECT LAST_INSERT_ID();";
 
-            var sql = @"INSERT INTO Pagos (NoPago, Fecha, Importe, ContratoId)
-                        VALUES (@NoPago, @Fecha, @Importe, @ContratoId);
-                        SELECT LAST_INSERT_ID();";
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@noPago", pago.NoPago);
+            cmd.Parameters.AddWithValue("@fecha", pago.FechaPago.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@importe", pago.Importe);
+            cmd.Parameters.AddWithValue("@contratoId", pago.ContratoId);
 
-            using var command = new MySqlCommand(sql, connection);
+            conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
 
-            command.Parameters.AddWithValue("@NoPago", pago.NoPago);
-            command.Parameters.AddWithValue("@Fecha", pago.Fecha.ToDateTime(TimeOnly.MinValue));
-            command.Parameters.AddWithValue("@Importe", pago.Importe);
-            command.Parameters.AddWithValue("@ContratoId", pago.ContratoId);
+        // 🔴 ESTE MÉTODO ES EL QUE FALTABA
+        public int Modificacion(Pago pago)
+        {
+            using var conn = GetConnection();
+            var sql = @"
+                UPDATE Pagos
+                SET FechaPago = @fecha,
+                    Importe = @importe
+                WHERE Id = @id;";
 
-            connection.Open();
-            return Convert.ToInt32(command.ExecuteScalar());
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@fecha", pago.FechaPago.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@importe", pago.Importe);
+            cmd.Parameters.AddWithValue("@id", pago.Id);
+
+            conn.Open();
+            return cmd.ExecuteNonQuery();
         }
 
         public int Baja(int id)
         {
-            using var connection = GetConnection();
-            var sql = @"DELETE FROM Pagos WHERE Id = @Id;";
-            using var command = new MySqlCommand(sql, connection);
+            using var conn = GetConnection();
+            var sql = @"DELETE FROM Pagos WHERE Id = @id;";
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", id);
 
-            command.Parameters.AddWithValue("@Id", id);
-
-            connection.Open();
-            return command.ExecuteNonQuery();
-        }
-
-        public int Modificacion(Pago pago)
-        {
-            using var connection = GetConnection();
-            var sql = @"UPDATE Pagos SET
-                        NoPago = @NoPago,
-                        Fecha = @Fecha,
-                        Importe = @Importe
-                        WHERE Id = @Id;";
-
-            using var command = new MySqlCommand(sql, connection);
-
-            command.Parameters.AddWithValue("@Id", pago.Id);
-            command.Parameters.AddWithValue("@NoPago", pago.NoPago);
-            command.Parameters.AddWithValue("@Fecha", pago.Fecha.ToDateTime(TimeOnly.MinValue));
-            command.Parameters.AddWithValue("@Importe", pago.Importe);
-
-            connection.Open();
-            return command.ExecuteNonQuery();
+            conn.Open();
+            return cmd.ExecuteNonQuery();
         }
 
         public Pago? ObtenerPorId(int id)
         {
-            using var connection = GetConnection();
-            var sql = @"SELECT * FROM Pagos WHERE Id = @Id;";
-            using var command = new MySqlCommand(sql, connection);
+            using var conn = GetConnection();
+            var sql = @"SELECT * FROM Pagos WHERE Id = @id;";
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", id);
 
-            command.Parameters.AddWithValue("@Id", id);
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             return reader.Read() ? new Pago(reader) : null;
         }
@@ -79,14 +73,13 @@ namespace InmobiliariaUlP_2025.Repositories
         {
             var lista = new List<Pago>();
 
-            using var connection = GetConnection();
-            var sql = @"SELECT * FROM Pagos WHERE ContratoId = @ContratoId ORDER BY NoPago ASC;";
-            using var command = new MySqlCommand(sql, connection);
+            using var conn = GetConnection();
+            var sql = @"SELECT * FROM Pagos WHERE ContratoId = @id ORDER BY NoPago;";
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", contratoId);
 
-            command.Parameters.AddWithValue("@ContratoId", contratoId);
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
                 lista.Add(new Pago(reader));
@@ -96,19 +89,13 @@ namespace InmobiliariaUlP_2025.Repositories
 
         public int ObtenerSiguienteNumeroPago(int contratoId)
         {
-            using var connection = GetConnection();
-            var sql = @"SELECT MAX(NoPago) FROM Pagos WHERE ContratoId = @ContratoId;";
-            using var command = new MySqlCommand(sql, connection);
+            using var conn = GetConnection();
+            var sql = @"SELECT IFNULL(MAX(NoPago), 0) + 1 FROM Pagos WHERE ContratoId = @id;";
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", contratoId);
 
-            command.Parameters.AddWithValue("@ContratoId", contratoId);
-
-            connection.Open();
-            var result = command.ExecuteScalar();
-
-            if (result == DBNull.Value)
-                return 1;
-
-            return Convert.ToInt32(result) + 1;
+            conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar());
         }
     }
 }

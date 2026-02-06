@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="alert alert-danger mt-4">
+    <h4>Acceso denegado</h4>
+    <p>No tenés permisos para realizar esta acción.</p>
+
+    <a asp-controller="Propietarios"
+       asp-action="Index"
+       class="btn btn-primary mt-2">
+        Volver
+    </a>
+</div>

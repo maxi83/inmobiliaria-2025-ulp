@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 namespace InmobiliariaUlP_2025.Models
 {
     // Clase base para Propietario e Inquilino
-    public class DatosPersonales
+    public abstract class DatosPersonales
     {
         [Required(ErrorMessage = "El DNI es obligatorio.")]
-        [StringLength(20, ErrorMessage = "El DNI no puede superar los 20 caracteres.")]
+        [RegularExpression(@"^\d{7,8}$", ErrorMessage = "El DNI debe tener 7 u 8 dígitos.")]
         public string Dni { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es obligatorio.")]
@@ -17,12 +17,13 @@ namespace InmobiliariaUlP_2025.Models
         [StringLength(50, ErrorMessage = "El nombre no puede superar los 50 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "El email es obligatorio.")]
         [EmailAddress(ErrorMessage = "El formato del email no es válido.")]
         [StringLength(100, ErrorMessage = "El email no puede superar los 100 caracteres.")]
         public string Email { get; set; } = string.Empty;
 
-        [Phone(ErrorMessage = "El formato del teléfono no es válido.")]
-        [StringLength(20, ErrorMessage = "El teléfono no puede superar los 20 caracteres.")]
+        [Required(ErrorMessage = "El teléfono es obligatorio.")]
+        [RegularExpression(@"^\d{10,13}$", ErrorMessage = "El teléfono debe tener entre 10 y 13 dígitos.")]
         public string Telefono { get; set; } = string.Empty;
     }
 }

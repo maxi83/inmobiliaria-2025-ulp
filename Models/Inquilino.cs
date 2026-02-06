@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using MySqlConnector;
 
 namespace InmobiliariaUlP_2025.Models
@@ -11,13 +10,12 @@ namespace InmobiliariaUlP_2025.Models
         {
             Id = reader.GetInt32("Id");
             Dni = reader.GetString("Dni");
-            Apellido = reader.GetString("Apellido");
             Nombre = reader.GetString("Nombre");
-            Email = reader.GetString("Email");
+            Apellido = reader.GetString("Apellido");
             Telefono = reader.GetString("Telefono");
+            Email = reader.GetString("Email");
         }
 
-        [Key]
         public int Id { get; set; }
     }
 }

@@ -1,0 +1,35 @@
+@model List<InmobiliariaUlP_2025.Models.Inmueble>
+
+@{
+    ViewData["Title"] = "Inmuebles del propietario";
+}
+
+<h2>Inmuebles pertenecientes a: @ViewBag.Propietario.Apellido @ViewBag.Propietario.Nombre</h2>
+
+<a class="btn btn-secondary mb-3" href="/Inmuebles">Volver</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Dirección</th>
+            <th>Uso</th>
+            <th>Tipo</th>
+            <th>Ambientes</th>
+            <th>Precio</th>
+            <th>Disponibilidad</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.Direccion</td>
+                <td>@i.Uso</td>
+                <td>@i.Tipo</td>
+                <td>@i.NoAmbientes</td>
+                <td>$ @i.Precio</td>
+                <td>@i.Disponibilidad</td>
+            </tr>
+        }
+    </tbody>
+</table>

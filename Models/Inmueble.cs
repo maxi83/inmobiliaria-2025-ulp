@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using MySqlConnector;
 
 namespace InmobiliariaUlP_2025.Models
@@ -25,55 +24,70 @@ namespace InmobiliariaUlP_2025.Models
         [Key]
         public int Id { get; set; }
 
-        // ---- RELACIÓN ----
+        // =========================
+        // RELACIÓN
+        // =========================
         [Required(ErrorMessage = "Debe seleccionar un propietario.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un propietario.")]
         public int PropietarioId { get; set; }
 
-        public virtual Propietario? Propietario { get; set; }
+        public Propietario? Propietario { get; set; }
 
-        // ---- CAMPOS ----
+        // =========================
+        // CAMPOS
+        // =========================
         [Required(ErrorMessage = "La dirección es obligatoria.")]
         [StringLength(200, ErrorMessage = "La dirección no puede superar los 200 caracteres.")]
-        public string Direccion { get; set; } = "";
+        public string Direccion { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Debe elegir el uso del inmueble.")]
+        [Required(ErrorMessage = "Debe seleccionar el uso del inmueble.")]
         public Uso Uso { get; set; }
 
-        [Required(ErrorMessage = "Debe elegir el tipo de inmueble.")]
+        [Required(ErrorMessage = "Debe seleccionar el tipo de inmueble.")]
         public Tipo Tipo { get; set; }
 
+        [Required(ErrorMessage = "Debe ingresar la cantidad de ambientes.")]
         [Range(1, 20, ErrorMessage = "Los ambientes deben estar entre 1 y 20.")]
         public int NoAmbientes { get; set; }
 
+        // =========================
+        // COORDENADAS (VALIDADAS)
+        // =========================
+        [Range(-90, 90, ErrorMessage = "La latitud debe estar entre -90 y 90.")]
         public double Latitud { get; set; }
+
+        [Range(-180, 180, ErrorMessage = "La longitud debe estar entre -180 y 180.")]
         public double Longitud { get; set; }
 
-        [Range(1, 9999999, ErrorMessage = "Debe ingresar un precio válido.")]
+        [Required(ErrorMessage = "Debe ingresar el precio.")]
+        [Range(1, 99999999, ErrorMessage = "Debe ingresar un precio válido.")]
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "Debe seleccionar la disponibilidad.")]
         public Disponibilidad Disponibilidad { get; set; }
     }
 
-    // ---- ENUMS ----
+    // =========================
+    // ENUMS
+    // =========================
     public enum Uso
     {
-        COMERCIAL,
-        RESIDENCIAL,
+        COMERCIAL = 0,
+        RESIDENCIAL = 1
     }
 
     public enum Tipo
     {
-        LOCAL,
-        DEPOSITO,
-        CASA,
-        DEPARTAMENTO,
+        LOCAL = 0,
+        DEPOSITO = 1,
+        CASA = 2,
+        DEPARTAMENTO = 3
     }
 
     public enum Disponibilidad
     {
-        OCUPADO,
-        SUSPENDIDO,
-        DESOCUPADO,
+        OCUPADO = 0,
+        SUSPENDIDO = 1,
+        DESOCUPADO = 2
     }
 }

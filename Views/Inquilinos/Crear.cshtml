@@ -1,49 +1,55 @@
 @model InmobiliariaUlP_2025.Models.Inquilino
 
 @{
-    ViewData["Title"] = "Crear inquilino";
+    ViewData["Title"] = "Crear Inquilino";
 }
 
-<h1>Crear inquilino</h1>
+<h1>Crear Inquilino</h1>
 
-<div asp-validation-summary="All" class="text-danger"></div>
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.Error
+    </div>
+}
 
-<form method="post" asp-action="Crear">
-
-    <div class="mb-3">
+<form asp-action="Crear" method="post">
+    <div class="form-group">
         <label asp-for="Dni"></label>
         <input asp-for="Dni" class="form-control" />
         <span asp-validation-for="Dni" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Apellido"></label>
         <input asp-for="Apellido" class="form-control" />
         <span asp-validation-for="Apellido" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Nombre"></label>
         <input asp-for="Nombre" class="form-control" />
         <span asp-validation-for="Nombre" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Telefono"></label>
         <input asp-for="Telefono" class="form-control" />
         <span asp-validation-for="Telefono" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

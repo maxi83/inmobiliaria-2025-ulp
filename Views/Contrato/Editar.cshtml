@@ -1,0 +1,49 @@
+@model InmobiliariaUlP_2025.Models.Contrato
+
+@{
+    ViewData["Title"] = "Editar contrato";
+}
+
+<h1>Editar contrato</h1>
+
+<form asp-action="Editar" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="InmuebleId" class="form-label">Inmueble</label>
+        <select asp-for="InmuebleId" class="form-select" asp-items="ViewBag.Inmuebles"></select>
+        <span asp-validation-for="InmuebleId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="InquilinoId" class="form-label">Inquilino</label>
+        <select asp-for="InquilinoId" class="form-select" asp-items="ViewBag.Inquilinos"></select>
+        <span asp-validation-for="InquilinoId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaInicio" class="form-label"></label>
+        <input asp-for="FechaInicio" class="form-control" type="date" />
+        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaFin" class="form-label"></label>
+        <input asp-for="FechaFin" class="form-control" type="date" />
+        <span asp-validation-for="FechaFin" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MontoMensual" class="form-label">Precio mensual</label>
+        <input asp-for="MontoMensual" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="MontoMensual" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

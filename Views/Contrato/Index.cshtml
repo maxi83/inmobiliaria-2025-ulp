@@ -2,40 +2,87 @@
 
 @{
     ViewData["Title"] = "Contratos";
+    bool esPorInmueble = ViewBag.EsPorInmueble != null && (bool)ViewBag.EsPorInmueble;
 }
 
-<h2>Contratos</h2>
+@if (esPorInmueble)
+{
+    <h2>Contratos del inmueble</h2>
 
-<p>
-    <a class="btn btn-primary" asp-controller="Contrato" asp-action="Create">Nuevo Contrato</a>
-</p>
+    <a asp-controller="Inmuebles"
+       asp-action="Index"
+       class="btn btn-outline-secondary mb-3">
+        ← Volver a Inmuebles
+    </a>
+}
+else
+{
+    <h2>Contratos</h2>
+
+    <p>
+        <a class="btn btn-primary" asp-action="Crear">Nuevo Contrato</a>
+
+        <a class="btn btn-secondary ms-2"
+           asp-action="Vigentes">
+            Contratos vigentes
+        </a>
+
+        <a class="btn btn-outline-secondary ms-2"
+           asp-action="Index">
+            Todos
+        </a>
+    </p>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>ID</th>
+            <th>N° Contrato</th>
             <th>Inmueble</th>
             <th>Inquilino</th>
             <th>Inicio</th>
             <th>Fin</th>
             <th>Monto</th>
-            <th></th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var contrato in Model)
         {
             <tr>
-                <td>@contrato.Id</td>
-                <td>@contrato.InmuebleId</td>
-                <td>@contrato.InquilinoId</td>
+                <td>@contrato.NumeroContrato</td>
+                <td>@contrato.Inmueble?.Direccion</td>
+                <td>@($"{contrato.Inquilino?.Apellido}, {contrato.Inquilino?.Nombre}")</td>
                 <td>@contrato.FechaInicio</td>
                 <td>@contrato.FechaFin</td>
-                <td>@contrato.MontoMensual</td>
+                <td>$ @contrato.MontoMensual</td>
                 <td>
-                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@contrato.Id">Editar</a>
-                    <a class="btn btn-sm btn-info" asp-action="Pagos" asp-route-id="@contrato.Id">Pagos</a>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@contrato.Id">Eliminar</a>
+                    <a class="btn btn-warning btn-sm"
+                       asp-action="Editar"
+                       asp-route-id="@contrato.Id">Editar</a>
+
+                    <a class="btn btn-info btn-sm text-white mx-1"
+                       asp-controller="Pago"
+                       asp-action="Index"
+                       asp-route-contratoId="@contrato.Id">Pagos</a>
+
+                    <a class="btn btn-danger btn-sm"
+                       asp-action="Eliminar"
+                       asp-route-id="@contrato.Id">Eliminar</a>
+
+                    <a class="btn btn-sm btn-danger mx-1"
+                       asp-action="Terminar"
+                       asp-route-id="@contrato.Id">Rescindir</a>
                 </td>
             </tr>
         }

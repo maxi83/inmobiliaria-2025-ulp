@@ -11,7 +11,10 @@ namespace InmobiliariaUlP_2025.Repositories.Interfaces
         int Modificacion(Inmueble inmueble);
         int Baja(int id);
 
-        // ⭐ Extra necesario: para llenar el combo de propietarios
-        List<Propietario> ObtenerPropietarios();
+        IList<Inmueble> ObtenerPorDisponibilidad(Disponibilidad dispo);
+        IList<Inmueble> ObtenerPorPropietario(int propietarioId);
+
+        // 🔎 Filtro final
+        IList<Inmueble> ObtenerDisponiblesEntreFechas(DateOnly inicio, DateOnly fin);
     }
 }

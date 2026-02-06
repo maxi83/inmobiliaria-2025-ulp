@@ -1,4 +1,3 @@
-@* La vista trabaja con un Propietario que viene del controlador (repositorio.Buscar(id)) *@
 @model InmobiliariaUlP_2025.Models.Propietario
 
 @{
@@ -7,35 +6,43 @@
 
 <h1>Editar propietario</h1>
 
-<form method="post" action="/Propietarios/Editar">
-    @* Id oculto para saber a quién estamos editando *@
-    <input type="hidden" name="Id" value="@Model.Id" />
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
-        <label for="Dni">DNI</label>
-        <input type="text" id="Dni" name="Dni" class="form-control" value="@Model.Dni" />
+        <label asp-for="Dni" class="form-label"></label>
+        <input asp-for="Dni" class="form-control" />
+        <span asp-validation-for="Dni" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label for="Apellido">Apellido</label>
-        <input type="text" id="Apellido" name="Apellido" class="form-control" value="@Model.Apellido" />
+        <label asp-for="Apellido" class="form-label"></label>
+        <input asp-for="Apellido" class="form-control" />
+        <span asp-validation-for="Apellido" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label for="Nombre">Nombre</label>
-        <input type="text" id="Nombre" name="Nombre" class="form-control" value="@Model.Nombre" />
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label for="Email">Email</label>
-        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" />
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label for="Telefono">Teléfono</label>
-        <input type="text" id="Telefono" name="Telefono" class="form-control" value="@Model.Telefono" />
+        <label asp-for="Telefono" class="form-label"></label>
+        <input asp-for="Telefono" class="form-control" />
+        <span asp-validation-for="Telefono" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar cambios</button>
-    <a href="/Propietarios" class="btn btn-secondary">Volver al listado</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

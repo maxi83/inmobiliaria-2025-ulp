@@ -1,0 +1,30 @@
+@model InmobiliariaUlP_2025.Models.Pago
+
+@{
+    ViewData["Title"] = "Nuevo Pago";
+}
+
+<h2>Nuevo Pago</h2>
+
+<form asp-action="Crear" method="post">
+    <input type="hidden" asp-for="ContratoId" />
+
+    <div class="mb-3">
+        <label asp-for="FechaPago" class="form-label"></label>
+        <input asp-for="FechaPago" class="form-control" type="date" />
+        <span asp-validation-for="FechaPago" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Importe" class="form-label"></label>
+        <input asp-for="Importe" class="form-control" />
+        <span asp-validation-for="Importe" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">Volver</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

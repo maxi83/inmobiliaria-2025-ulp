@@ -10,5 +10,7 @@ namespace InmobiliariaUlP_2025.Repositories.Interfaces
         int Alta(Propietario propietario);
         int Modificacion(Propietario propietario);
         int Baja(int id);
+        Propietario? ObtenerPorId(int id);
+
     }
 }
