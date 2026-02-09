@@ -1,256 +1,228 @@
+using MySqlConnector;
 using InmobiliariaUlP_2025.Models;
 using InmobiliariaUlP_2025.Repositories.Interfaces;
-using MySqlConnector;
+using Microsoft.Extensions.Configuration;
 
 namespace InmobiliariaUlP_2025.Repositories.Implementations
 {
-    public class RepositorioContrato : RepositorioBase, IRepositorioContrato
+    public class RepositorioContrato : IRepositorioContrato
     {
-        public RepositorioContrato(IConfiguration config) : base(config) { }
+        private readonly string connectionString;
 
-        // =========================
-        // CONSULTA BASE CON JOIN
-        // =========================
-        private const string SELECT_JOIN = @"
-            SELECT 
-                c.*,
-                i.Id AS Inmueble_Id, i.Direccion,
-                q.Id AS Inquilino_Id, q.Apellido, q.Nombre
-            FROM Contratos c
-            JOIN Inmuebles i ON c.InmuebleId = i.Id
-            JOIN Inquilinos q ON c.InquilinoId = q.Id
-        ";
-
-        private Contrato MapContrato(MySqlDataReader reader)
+        public RepositorioContrato(IConfiguration configuration)
         {
-            return new Contrato(reader)
-            {
-                Inmueble = new Inmueble
-                {
-                    Id = reader.GetInt32("Inmueble_Id"),
-                    Direccion = reader.GetString("Direccion")
-                },
-                Inquilino = new Inquilino
-                {
-                    Id = reader.GetInt32("Inquilino_Id"),
-                    Apellido = reader.GetString("Apellido"),
-                    Nombre = reader.GetString("Nombre")
-                }
-            };
+            connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new Exception("ConnectionString no configurada");
         }
 
         // =========================
-        // OBTENER TODOS
+        // LISTADOS
         // =========================
         public IList<Contrato> ObtenerTodos()
         {
-            var lista = new List<Contrato>();
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(SELECT_JOIN, conn);
+            var res = new List<Contrato>();
 
+            using var conn = new MySqlConnection(connectionString);
+            var sql = @"
+                SELECT 
+                    c.*,
+                    i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
+                    inm.Id AS InmId, inm.Direccion
+                FROM Contratos c
+                INNER JOIN Inquilinos i ON c.InquilinoId = i.Id
+                INNER JOIN Inmuebles inm ON c.InmuebleId = inm.Id
+            ";
+
+            using var cmd = new MySqlCommand(sql, conn);
+            conn.Open();
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var contrato = new Contrato(reader);
+
+                contrato.Inquilino = new Inquilino
+                {
+                    Id = reader.GetInt32("InqId"),
+                    Nombre = reader.GetString("InqNombre"),
+                    Apellido = reader.GetString("InqApellido")
+                };
+
+                contrato.Inmueble = new Inmueble
+                {
+                    Id = reader.GetInt32("InmId"),
+                    Direccion = reader.GetString("Direccion")
+                };
+
+                res.Add(contrato);
+            }
+
+            return res;
+        }
+
+        public IList<Contrato> ObtenerVigentes()
+        {
+            var res = new List<Contrato>();
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(@"
+                SELECT * FROM Contratos
+                WHERE FechaInicio <= CURDATE()
+                AND FechaFin >= CURDATE()", conn);
             conn.Open();
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
-                lista.Add(MapContrato(reader));
+                res.Add(new Contrato(reader));
+            return res;
+        }
 
-            return lista;
+        public IList<Contrato> ObtenerPorInmueble(int inmuebleId)
+        {
+            var res = new List<Contrato>();
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(
+                "SELECT * FROM Contratos WHERE InmuebleId=@id", conn);
+            cmd.Parameters.AddWithValue("@id", inmuebleId);
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+                res.Add(new Contrato(reader));
+            return res;
+        }
+
+        public IList<Contrato> ObtenerPorInquilino(int inquilinoId)
+        {
+            var res = new List<Contrato>();
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(
+                "SELECT * FROM Contratos WHERE InquilinoId=@id", conn);
+            cmd.Parameters.AddWithValue("@id", inquilinoId);
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+                res.Add(new Contrato(reader));
+            return res;
         }
 
         // =========================
-        // OBTENER POR ID
+        // ABM
         // =========================
         public Contrato? ObtenerPorId(int id)
         {
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(SELECT_JOIN + " WHERE c.Id=@id", conn);
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(
+                "SELECT * FROM Contratos WHERE Id=@id", conn);
             cmd.Parameters.AddWithValue("@id", id);
-
             conn.Open();
             using var reader = cmd.ExecuteReader();
-            return reader.Read() ? MapContrato(reader) : null;
+            return reader.Read() ? new Contrato(reader) : null;
         }
 
-        // =========================
-        // VIGENTES
-        // =========================
-        public IList<Contrato> ObtenerVigentes()
+        public int Alta(Contrato contrato)
         {
-            var lista = new List<Contrato>();
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(
-                SELECT_JOIN + " WHERE c.FechaFin >= CURDATE()", conn);
-
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-                lista.Add(MapContrato(reader));
-
-            return lista;
-        }
-
-        // =========================
-        // POR INMUEBLE
-        // =========================
-        public IList<Contrato> ObtenerPorInmueble(int inmuebleId)
-        {
-            var lista = new List<Contrato>();
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(
-                SELECT_JOIN + " WHERE c.InmuebleId=@id", conn);
-            cmd.Parameters.AddWithValue("@id", inmuebleId);
-
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-                lista.Add(MapContrato(reader));
-
-            return lista;
-        }
-
-        // =========================
-        // POR INQUILINO
-        // =========================
-        public IList<Contrato> ObtenerPorInquilino(int inquilinoId)
-        {
-            var lista = new List<Contrato>();
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(
-                SELECT_JOIN + " WHERE c.InquilinoId=@id", conn);
-            cmd.Parameters.AddWithValue("@id", inquilinoId);
-
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-                lista.Add(MapContrato(reader));
-
-            return lista;
-        }
-
-        // =========================
-        // ALTA
-        // =========================
-        public int Alta(Contrato c)
-        {
-            using var conn = GetConnection();
-            var sql = @"
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(@"
                 INSERT INTO Contratos
                 (NumeroContrato, InmuebleId, InquilinoId, FechaInicio, FechaFin, MontoMensual)
-                VALUES (@num, @inm, @inq, @fi, @ff, @monto);
-                SELECT LAST_INSERT_ID();";
+                VALUES (@num,@inm,@inq,@ini,@fin,@monto)", conn);
 
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@num", c.NumeroContrato);
-            cmd.Parameters.AddWithValue("@inm", c.InmuebleId);
-            cmd.Parameters.AddWithValue("@inq", c.InquilinoId);
-            cmd.Parameters.AddWithValue("@fi", c.FechaInicio.ToDateTime(TimeOnly.MinValue));
-            cmd.Parameters.AddWithValue("@ff", c.FechaFin.ToDateTime(TimeOnly.MinValue));
-            cmd.Parameters.AddWithValue("@monto", c.MontoMensual);
-
-            conn.Open();
-            return Convert.ToInt32(cmd.ExecuteScalar());
-        }
-
-        // =========================
-        // MODIFICAR
-        // =========================
-        public int Modificacion(Contrato c)
-        {
-            using var conn = GetConnection();
-            var sql = @"
-                UPDATE Contratos SET
-                    InmuebleId=@inm,
-                    InquilinoId=@inq,
-                    FechaInicio=@fi,
-                    FechaFin=@ff,
-                    MontoMensual=@monto
-                WHERE Id=@id";
-
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@inm", c.InmuebleId);
-            cmd.Parameters.AddWithValue("@inq", c.InquilinoId);
-            cmd.Parameters.AddWithValue("@fi", c.FechaInicio.ToDateTime(TimeOnly.MinValue));
-            cmd.Parameters.AddWithValue("@ff", c.FechaFin.ToDateTime(TimeOnly.MinValue));
-            cmd.Parameters.AddWithValue("@monto", c.MontoMensual);
-            cmd.Parameters.AddWithValue("@id", c.Id);
+            cmd.Parameters.AddWithValue("@num", ObtenerSiguienteNumeroContrato());
+            cmd.Parameters.AddWithValue("@inm", contrato.InmuebleId);
+            cmd.Parameters.AddWithValue("@inq", contrato.InquilinoId);
+            cmd.Parameters.AddWithValue("@ini", contrato.FechaInicio.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@fin", contrato.FechaFin.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@monto", contrato.MontoMensual);
 
             conn.Open();
             return cmd.ExecuteNonQuery();
         }
 
-        // =========================
-        // BAJA
-        // =========================
+        public int Modificacion(Contrato contrato)
+        {
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(@"
+                UPDATE Contratos SET
+                InmuebleId=@inm,
+                InquilinoId=@inq,
+                FechaInicio=@ini,
+                FechaFin=@fin,
+                MontoMensual=@monto
+                WHERE Id=@id", conn);
+
+            cmd.Parameters.AddWithValue("@id", contrato.Id);
+            cmd.Parameters.AddWithValue("@inm", contrato.InmuebleId);
+            cmd.Parameters.AddWithValue("@inq", contrato.InquilinoId);
+            cmd.Parameters.AddWithValue("@ini", contrato.FechaInicio.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@fin", contrato.FechaFin.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@monto", contrato.MontoMensual);
+
+            conn.Open();
+            return cmd.ExecuteNonQuery();
+        }
+
         public int Baja(int id)
         {
-            using var conn = GetConnection();
+            using var conn = new MySqlConnection(connectionString);
             using var cmd = new MySqlCommand(
                 "DELETE FROM Contratos WHERE Id=@id", conn);
             cmd.Parameters.AddWithValue("@id", id);
-
-            try
-            {
-                conn.Open();
-                return cmd.ExecuteNonQuery();
-            }
-            catch (MySqlException ex) when (ex.Number == 1451)
-            {
-                return -1;
-            }
+            conn.Open();
+            return cmd.ExecuteNonQuery();
         }
 
         // =========================
-        // OCUPADO
+        // LÓGICA
         // =========================
         public bool EstaOcupado(int inmuebleId, DateOnly inicio, DateOnly fin, int? contratoId = null)
         {
-            using var conn = GetConnection();
+            using var conn = new MySqlConnection(connectionString);
             var sql = @"
                 SELECT COUNT(*) FROM Contratos
-                WHERE InmuebleId=@inm
+                WHERE InmuebleId=@id
                 AND FechaInicio <= @fin
-                AND FechaFin >= @inicio";
+                AND FechaFin >= @ini";
 
             if (contratoId.HasValue)
-                sql += " AND Id <> @id";
+                sql += " AND Id <> @cid";
 
             using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@inm", inmuebleId);
-            cmd.Parameters.AddWithValue("@inicio", inicio.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@id", inmuebleId);
+            cmd.Parameters.AddWithValue("@ini", inicio.ToDateTime(TimeOnly.MinValue));
             cmd.Parameters.AddWithValue("@fin", fin.ToDateTime(TimeOnly.MinValue));
-
             if (contratoId.HasValue)
-                cmd.Parameters.AddWithValue("@id", contratoId.Value);
+                cmd.Parameters.AddWithValue("@cid", contratoId.Value);
 
             conn.Open();
             return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
         }
 
-        public int ObtenerSiguienteNumeroContrato()
-        {
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(
-                "SELECT IFNULL(MAX(NumeroContrato),0)+1 FROM Contratos", conn);
-
-            conn.Open();
-            return Convert.ToInt32(cmd.ExecuteScalar());
-        }
-
         public int TerminarContratoAnticipadamente(int id, DateOnly nuevaFechaFin)
         {
-            using var conn = GetConnection();
-            using var cmd = new MySqlCommand(
-                "UPDATE Contratos SET FechaFin=@fin WHERE Id=@id", conn);
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(@"
+                UPDATE Contratos
+                SET FechaFin=@fin, FechaFinOriginal=FechaFin
+                WHERE Id=@id", conn);
 
-            cmd.Parameters.AddWithValue("@fin", nuevaFechaFin.ToDateTime(TimeOnly.MinValue));
             cmd.Parameters.AddWithValue("@id", id);
-
+            cmd.Parameters.AddWithValue("@fin", nuevaFechaFin.ToDateTime(TimeOnly.MinValue));
             conn.Open();
             return cmd.ExecuteNonQuery();
         }
 
-        public int RenovarContrato(Contrato nuevo, int contratoAnteriorId)
+        public int RenovarContrato(Contrato contrato, int meses)
         {
-            return Alta(nuevo);
+            contrato.FechaInicio = contrato.FechaFin;
+            contrato.FechaFin = contrato.FechaInicio.AddMonths(meses);
+            return Alta(contrato);
+        }
+
+        public int ObtenerSiguienteNumeroContrato()
+        {
+            using var conn = new MySqlConnection(connectionString);
+            using var cmd = new MySqlCommand(
+                "SELECT IFNULL(MAX(NumeroContrato),0)+1 FROM Contratos", conn);
+            conn.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar());
         }
     }
 }

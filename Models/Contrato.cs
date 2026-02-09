@@ -22,21 +22,12 @@ namespace InmobiliariaUlP_2025.Models
         }
 
         public int Id { get; set; }
-
-        // =========================
-        // DATOS DEL CONTRATO
-        // =========================
         public int NumeroContrato { get; set; }
 
         // =========================
-        // RELACIONES
+        // RELACIONES (ESTO FALTABA)
         // =========================
-        [Required(ErrorMessage = "Debe seleccionar un inmueble.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un inmueble.")]
         public int InmuebleId { get; set; }
-
-        [Required(ErrorMessage = "Debe seleccionar un inquilino.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un inquilino.")]
         public int InquilinoId { get; set; }
 
         public Inmueble? Inmueble { get; set; }
@@ -45,19 +36,13 @@ namespace InmobiliariaUlP_2025.Models
         // =========================
         // FECHAS
         // =========================
-        [Required(ErrorMessage = "La fecha de inicio es obligatoria.")]
         public DateOnly FechaInicio { get; set; }
-
-        [Required(ErrorMessage = "La fecha de fin es obligatoria.")]
         public DateOnly FechaFin { get; set; }
-
         public DateOnly? FechaFinOriginal { get; set; }
 
         // =========================
         // MONTO
         // =========================
-        [Required(ErrorMessage = "El precio mensual es obligatorio.")]
-        [Range(1, 99999999, ErrorMessage = "El precio mensual debe ser mayor a 0.")]
         public decimal MontoMensual { get; set; }
     }
 }

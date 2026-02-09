@@ -1,26 +1,15 @@
 using InmobiliariaUlP_2025.Repositories.Interfaces;
 using InmobiliariaUlP_2025.Repositories.Implementations;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================
-// MVC + Localización
-// =========================
-builder.Services.AddControllersWithViews(options =>
-{
-    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
-        _ => "El valor debe ser un número válido."
-    );
-})
-.AddDataAnnotationsLocalization()
-.AddViewLocalization();
+// MVC
+builder.Services.AddControllersWithViews();
 
-// =========================
-// AUTH (LOGIN)
-// =========================
+// AUTH
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -28,27 +17,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Login/Denegado";
     });
 
-// =========================
-// REPOSITORIOS
-// =========================
+// REPOSITORIOS (🔥 ASÍ, SIN LAMBDAS)
 builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioPago, RepositorioPago>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 
-// =========================
 // CULTURA
-// =========================
 var culture = new CultureInfo("es-AR");
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var app = builder.Build();
 
-// =========================
-// LOCALIZACIÓN
-// =========================
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
     DefaultRequestCulture = new RequestCulture(culture),
@@ -56,26 +38,11 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = new[] { culture }
 });
 
-// =========================
-// MIDDLEWARE
-// =========================
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-// =========================
-// RUTAS
-// =========================
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");

@@ -39,9 +39,7 @@ namespace InmobiliariaUlP_2025.Controllers
         {
             ViewBag.DesdeInmueble = true;
             ViewBag.Inmueble = repoInmueble.Buscar(id);
-
-            var contratos = repoContrato.ObtenerPorInmueble(id);
-            return View("Index", contratos);
+            return View("Index", repoContrato.ObtenerPorInmueble(id));
         }
 
         // =========================
@@ -50,7 +48,7 @@ namespace InmobiliariaUlP_2025.Controllers
         public IActionResult Crear()
         {
             CargarCombos();
-            return View();
+            return View(new Contrato());
         }
 
         [HttpPost]
@@ -92,7 +90,7 @@ namespace InmobiliariaUlP_2025.Controllers
         }
 
         // =========================
-        // ELIMINAR
+        // ELIMINAR (ADMIN)
         // =========================
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
@@ -108,6 +106,42 @@ namespace InmobiliariaUlP_2025.Controllers
         public IActionResult EliminarConfirmado(int id)
         {
             repoContrato.Baja(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================
+        // TERMINAR / RESCINDIR
+        // =========================
+        public IActionResult Terminar(int id)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            return View(contrato);
+        }
+
+        [HttpPost]
+        public IActionResult Terminar(int id, DateOnly nuevaFechaFin)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            var inicio = contrato.FechaInicio.ToDateTime(TimeOnly.MinValue);
+            var finOriginal = contrato.FechaFin.ToDateTime(TimeOnly.MinValue);
+            var finNuevo = nuevaFechaFin.ToDateTime(TimeOnly.MinValue);
+
+            int mesesTotales = (int)((finOriginal - inicio).TotalDays / 30);
+            int mesesCumplidos = (int)((finNuevo - inicio).TotalDays / 30);
+
+            decimal multa = mesesCumplidos < mesesTotales / 2
+                ? contrato.MontoMensual * 2
+                : contrato.MontoMensual;
+
+            repoContrato.TerminarContratoAnticipadamente(id, nuevaFechaFin);
+
+            // 🔑 TempData COMO STRING (evita error)
+            TempData["Multa"] = multa.ToString("N2");
+
             return RedirectToAction(nameof(Index));
         }
 
