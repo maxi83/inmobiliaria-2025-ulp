@@ -2,109 +2,103 @@
 
 @{
     ViewData["Title"] = "Inmuebles";
-    bool filtroFechas = ViewContext.HttpContext.Request.Method == "POST";
 }
 
-<h1>Listado de Inmuebles</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Listado de Inmuebles</h1>
 
-<a asp-action="Crear" class="btn btn-primary mb-3">Nuevo Inmueble</a>
-
-@if (filtroFechas)
-{
-    <a asp-action="Index"
-       class="btn btn-outline-secondary mb-3 ms-2">
-        Ver todos los inmuebles
+    <a asp-action="Crear" class="btn btn-primary">
+        Nuevo Inmueble
     </a>
-}
-
-<!-- 🔎 FILTROS -->
-<div class="mb-3">
-    <form method="get" class="row g-2 mb-2">
-        <div class="col-md-4">
-            <label class="form-label">Disponibilidad</label>
-            <select name="dispo" class="form-select" onchange="this.form.submit()">
-                <option value="">-- Todas --</option>
-                @foreach (var d in Enum.GetValues(typeof(Disponibilidad)))
-                {
-                    <option value="@d"
-                            selected="@(ViewBag.FiltroActual != null && ViewBag.FiltroActual.Equals(d))">
-                        @d
-                    </option>
-                }
-            </select>
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Propietario</label>
-            <select class="form-select"
-                    onchange="if(this.value) window.location='@Url.Action("PorPropietario")/' + this.value;">
-                <option value="">-- Seleccione propietario --</option>
-                @foreach (var p in (IEnumerable<InmobiliariaUlP_2025.Models.Propietario>)ViewBag.Propietarios)
-                {
-                    <option value="@p.Id">@p.Apellido @p.Nombre</option>
-                }
-            </select>
-        </div>
-    </form>
-
-    <form method="post" asp-action="Disponibles" class="row g-2">
-        <div class="col-md-3">
-            <label class="form-label">Desde</label>
-            <input type="date" name="inicio" class="form-control" required />
-        </div>
-
-        <div class="col-md-3">
-            <label class="form-label">Hasta</label>
-            <input type="date" name="fin" class="form-control" required />
-        </div>
-
-        <div class="col-md-3 align-self-end">
-            <button class="btn btn-success">Buscar disponibles</button>
-        </div>
-    </form>
 </div>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Dirección</th>
-            <th>Propietario</th>
-            <th>Uso</th>
-            <th>Tipo</th>
-            <th>Ambientes</th>
-            <th>Latitud</th>
-            <th>Longitud</th>
-            <th>Precio</th>
-            <th>Disponibilidad</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var i in Model)
-        {
+<!-- FILTROS -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+
+            <div class="col-md-3">
+                <label class="form-label">Disponibilidad</label>
+                <select name="dispo" class="form-select">
+                    <option value="">-- Todas --</option>
+                    @foreach (var d in Enum.GetValues(typeof(Disponibilidad)))
+                    {
+                        <option value="@d">@d</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Propietario</label>
+                <select name="propietarioId" class="form-select">
+                    <option value="">-- Seleccione --</option>
+                    @foreach (var p in (IEnumerable<InmobiliariaUlP_2025.Models.Propietario>)ViewBag.Propietarios)
+                    {
+                        <option value="@p.Id">@p.Apellido @p.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Desde</label>
+                <input type="date" name="inicio" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="fin" class="form-control" />
+            </div>
+
+            <div class="col-md-12 text-end">
+                <button class="btn btn-success mt-2">
+                    Filtrar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- TABLA -->
+<div class="table-responsive">
+    <table class="table table-dark table-striped table-sm align-middle">
+        <thead>
             <tr>
-                <td>@i.Direccion</td>
-                <td>@i.Propietario?.Apellido @i.Propietario?.Nombre</td>
-                <td>@i.Uso</td>
-                <td>@i.Tipo</td>
-                <td>@i.NoAmbientes</td>
-                <td>@i.Latitud</td>
-                <td>@i.Longitud</td>
-                <td>@i.Precio</td>
-                <td>@i.Disponibilidad</td>
-                <td>
-                    <a asp-action="Editar" asp-route-id="@i.Id" class="btn btn-sm btn-warning">Editar</a>
-
-                    <a asp-controller="Contrato"
-                       asp-action="PorInmueble"
-                       asp-route-id="@i.Id"
-                       class="btn btn-sm btn-info text-white mx-1">
-                        Contratos
-                    </a>
-
-                    <a asp-action="Eliminar" asp-route-id="@i.Id" class="btn btn-sm btn-danger">Eliminar</a>
-                </td>
+                <th>Dirección</th>
+                <th>Propietario</th>
+                <th>Uso</th>
+                <th>Tipo</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center" style="width:300px;">Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var i in Model)
+            {
+                <tr>
+                    <td class="text-nowrap">@i.Direccion</td>
+                    <td>@i.Propietario?.Apellido @i.Propietario?.Nombre</td>
+                    <td>@i.Uso</td>
+                    <td>@i.Tipo</td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary">@i.Disponibilidad</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                            <a asp-action="Detalles" asp-route-id="@i.Id" class="btn btn-info btn-sm">Detalles</a>
+                            <a asp-action="Editar" asp-route-id="@i.Id" class="btn btn-secondary btn-sm">Editar</a>
+                            <a asp-controller="Contrato"
+                            asp-action="PorInmueble"
+                            asp-route-id="@i.Id"
+                            class="btn btn-primary btn-sm">
+                                Contratos
+                            </a>
+
+                            <a asp-action="Eliminar" asp-route-id="@i.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

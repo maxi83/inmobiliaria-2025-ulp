@@ -1,0 +1,33 @@
+@model InmobiliariaUlP_2025.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Detalles del Inmueble";
+}
+
+<h1 class="mb-4">Detalles del Inmueble</h1>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+
+            <dt class="col-sm-4">Ambientes</dt>
+            <dd class="col-sm-8">@Model.NoAmbientes</dd>
+
+            <dt class="col-sm-4">Precio mensual</dt>
+            <dd class="col-sm-8">$ @Model.Precio</dd>
+
+            <dt class="col-sm-4">Latitud</dt>
+            <dd class="col-sm-8">@Model.Latitud</dd>
+
+            <dt class="col-sm-4">Longitud</dt>
+            <dd class="col-sm-8">@Model.Longitud</dd>
+
+        </dl>
+
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </div>
+    </div>
+</div>

@@ -5,76 +5,26 @@ using InmobiliariaUlP_2025.Repositories.Interfaces;
 
 namespace InmobiliariaUlP_2025.Controllers
 {
-    [Authorize] // 🔒 requiere login
+    [Authorize]
     public class PagoController : Controller
     {
-        private readonly IRepositorioPago repositorioPago;
-        private readonly IRepositorioContrato repositorioContrato;
+        private readonly IRepositorioPago repoPago;
+        private readonly IRepositorioContrato repoContrato;
 
-        public PagoController(
-            IRepositorioPago repositorioPago,
-            IRepositorioContrato repositorioContrato)
+        public PagoController(IRepositorioPago repoPago, IRepositorioContrato repoContrato)
         {
-            this.repositorioPago = repositorioPago;
-            this.repositorioContrato = repositorioContrato;
+            this.repoPago = repoPago;
+            this.repoContrato = repoContrato;
         }
 
-        // =========================
-        // LISTAR PAGOS DE CONTRATO
-        // =========================
-        public IActionResult Index(int contratoId)
+        public IActionResult PorContrato(int id, int? inmuebleId, bool desdeInmueble = false)
         {
-            ViewBag.Contrato = repositorioContrato.ObtenerPorId(contratoId);
-            var pagos = repositorioPago.ObtenerPorContrato(contratoId);
+            ViewBag.Contrato = repoContrato.ObtenerPorId(id);
+            ViewBag.InmuebleId = inmuebleId;
+            ViewBag.DesdeInmueble = desdeInmueble;
+
+            var pagos = repoPago.ObtenerPorContrato(id);
             return View(pagos);
-        }
-
-        // =========================
-        // CREAR PAGO
-        // =========================
-        public IActionResult Crear(int contratoId)
-        {
-            var pago = new Pago
-            {
-                ContratoId = contratoId
-            };
-            return View(pago);
-        }
-
-        [HttpPost]
-        public IActionResult Crear(Pago pago)
-        {
-            if (!ModelState.IsValid)
-                return View(pago);
-
-            repositorioPago.Alta(pago);
-            TempData["Mensaje"] = "Pago registrado correctamente.";
-            return RedirectToAction(nameof(Index), new { contratoId = pago.ContratoId });
-        }
-
-        // =========================
-        // ELIMINAR (SOLO ADMIN)
-        // =========================
-        [Authorize(Roles = "Administrador")]
-        public IActionResult Eliminar(int id)
-        {
-            var pago = repositorioPago.ObtenerPorId(id);
-            if (pago == null) return NotFound();
-
-            return View(pago);
-        }
-
-        [Authorize(Roles = "Administrador")]
-        [HttpPost, ActionName("Eliminar")]
-        public IActionResult EliminarConfirmado(int id)
-        {
-            var pago = repositorioPago.ObtenerPorId(id);
-            if (pago == null) return NotFound();
-
-            repositorioPago.Baja(id);
-            TempData["Mensaje"] = "Pago eliminado correctamente.";
-
-            return RedirectToAction(nameof(Index), new { contratoId = pago.ContratoId });
         }
     }
 }

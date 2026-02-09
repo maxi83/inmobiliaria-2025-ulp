@@ -1,14 +1,12 @@
 @{
     ViewData["Title"] = "Acceso denegado";
+    Layout = "_Layout";
 }
 
-<div class="alert alert-danger mt-4">
-    <h4>Acceso denegado</h4>
-    <p>No tenés permisos para realizar esta acción.</p>
+<h2 class="text-danger">Acceso denegado</h2>
 
-    <a asp-controller="Propietarios"
-       asp-action="Index"
-       class="btn btn-primary mt-2">
-        Volver
-    </a>
-</div>
+<p>No tiene permisos para realizar esta acción.</p>
+
+<a asp-controller="Login" asp-action="Index" class="btn btn-secondary">
+    Volver al login
+</a>

@@ -21,7 +21,6 @@ C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\rjsmcshtml.dswa.ca
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\scopedcss\bundle\InmobiliariaUlP-2025.styles.css
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\scopedcss\projectbundle\InmobiliariaUlP-2025.bundle.scp.css
-C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\8jsxhn56i1-b9sayid5wm.gz
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\mwudjaexwp-61n19gt1b8.gz
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\vdcprgk7ul-xtxxf3hu2r.gz
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\u4tlzhfi6p-bqjiyaj88i.gz
@@ -115,3 +114,4 @@ C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\InmobiliariaUlP-20
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\Inmobili.9DC55099.Up2Date
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\InmobiliariaUlP-2025.sourcelink.json
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\bin\Debug\net9.0\MySqlConnector.dll
+C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\compressed\8jsxhn56i1-510ikvxpn5.gz

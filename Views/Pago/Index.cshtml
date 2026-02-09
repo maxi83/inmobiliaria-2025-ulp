@@ -2,18 +2,32 @@
 
 @{
     ViewData["Title"] = "Pagos";
-    var contrato = ViewBag.Contrato;
 }
 
 <h2>Pagos del contrato</h2>
 
-<a class="btn btn-primary mb-3"
-   asp-action="Crear"
-   asp-route-contratoId="@contrato.Id">
-    Nuevo Pago
-</a>
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
 
-<table class="table table-bordered">
+<p>
+    <a class="btn btn-primary"
+       asp-action="Crear"
+       asp-route-contratoId="@ViewBag.Contrato.Id">
+        Nuevo pago
+    </a>
+
+    <a class="btn btn-secondary ms-2"
+       asp-controller="Contrato"
+       asp-action="Index">
+        Volver a contratos
+    </a>
+</p>
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>N° Pago</th>
@@ -30,11 +44,15 @@
                 <td>@p.FechaPago</td>
                 <td>$ @p.Importe</td>
                 <td>
-                    <a class="btn btn-danger btn-sm"
-                       asp-action="Eliminar"
-                       asp-route-id="@p.Id">
-                        Eliminar
-                    </a>
+                    @* 🔒 SOLO ADMIN VE EL BOTÓN *@
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <a class="btn btn-danger btn-sm"
+                           asp-action="Eliminar"
+                           asp-route-id="@p.Id">
+                            Eliminar
+                        </a>
+                    }
                 </td>
             </tr>
         }

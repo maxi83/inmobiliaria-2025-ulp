@@ -5,7 +5,7 @@ using InmobiliariaUlP_2025.Repositories.Interfaces;
 
 namespace InmobiliariaUlP_2025.Controllers
 {
-    [Authorize] // 🔒 requiere login
+    [Authorize]
     public class InmueblesController : Controller
     {
         private readonly IRepositorioInmueble repositorioInmueble;
@@ -19,26 +19,44 @@ namespace InmobiliariaUlP_2025.Controllers
             this.repositorioPropietario = repositorioPropietario;
         }
 
-        public IActionResult Index(Disponibilidad? dispo)
+        public IActionResult Index(
+            Disponibilidad? dispo,
+            int? propietarioId,
+            DateTime? inicio,
+            DateTime? fin)
         {
             ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+
+            var inmuebles = repositorioInmueble.ObtenerTodos();
+
+            if (inicio.HasValue && fin.HasValue)
+            {
+                var inicioDateOnly = DateOnly.FromDateTime(inicio.Value);
+                var finDateOnly = DateOnly.FromDateTime(fin.Value);
+
+                inmuebles = repositorioInmueble
+                    .ObtenerDisponiblesEntreFechas(inicioDateOnly, finDateOnly)
+                    .ToList();
+            }
 
             if (dispo.HasValue)
             {
-                ViewBag.FiltroActual = dispo.Value;
-                return View(repositorioInmueble.ObtenerPorDisponibilidad(dispo.Value));
+                inmuebles = inmuebles
+                    .Where(i => i.Disponibilidad == dispo.Value)
+                    .ToList();
             }
 
-            ViewBag.FiltroActual = null;
-            return View(repositorioInmueble.ObtenerTodos());
+            if (propietarioId.HasValue)
+            {
+                inmuebles = inmuebles
+                    .Where(i => i.PropietarioId == propietarioId.Value)
+                    .ToList();
+            }
+
+            return View(inmuebles);
         }
 
-        public IActionResult PorPropietario(int id)
-        {
-            ViewBag.Propietario = repositorioPropietario.ObtenerPorId(id);
-            ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
-            return View("Index", repositorioInmueble.ObtenerPorPropietario(id));
-        }
+
 
         public IActionResult Crear()
         {
@@ -64,7 +82,6 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(inmueble);
             }
 
-            TempData["Mensaje"] = "Inmueble creado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -87,11 +104,9 @@ namespace InmobiliariaUlP_2025.Controllers
             }
 
             repositorioInmueble.Modificacion(inmueble);
-            TempData["Mensaje"] = "Inmueble modificado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        // 🔒 SOLO ADMIN PUEDE ELIMINAR
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
         {
@@ -101,14 +116,20 @@ namespace InmobiliariaUlP_2025.Controllers
             return View(inmueble);
         }
 
-        // 🔒 SOLO ADMIN PUEDE CONFIRMAR
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         public IActionResult ConfirmarEliminar(int id)
         {
             repositorioInmueble.Baja(id);
-            TempData["Mensaje"] = "Inmueble eliminado correctamente.";
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Detalles(int id)
+        {
+            var inmueble = repositorioInmueble.Buscar(id);
+            if (inmueble == null) return NotFound();
+
+            return View(inmueble);
         }
     }
 }
