@@ -120,9 +120,19 @@ namespace InmobiliariaUlP_2025.Controllers
         [HttpPost]
         public IActionResult ConfirmarEliminar(int id)
         {
-            repositorioInmueble.Baja(id);
+            var resultado = repositorioInmueble.Baja(id);
+
+            if (resultado == -1)
+            {
+                TempData["Error"] = "No se puede eliminar el inmueble porque tiene contratos asociados.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Mensaje"] = "Inmueble eliminado correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
+
 
         public IActionResult Detalles(int id)
         {

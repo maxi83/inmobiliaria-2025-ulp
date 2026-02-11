@@ -152,15 +152,24 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         // =========================
         public int Baja(int id)
         {
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
+            try
+            {
+                using var connection = GetConnection();
+                using var command = connection.CreateCommand();
 
-            command.CommandText = @"DELETE FROM Inmuebles WHERE Id=@id;";
-            command.Parameters.AddWithValue("@id", id);
+                command.CommandText = "DELETE FROM Inmuebles WHERE Id=@id;";
+                command.Parameters.AddWithValue("@id", id);
 
-            connection.Open();
-            return command.ExecuteNonQuery();
+                connection.Open();
+                return command.ExecuteNonQuery();
+            }
+            catch (MySqlException)
+            {
+                return -1; // 👈 NO se pudo borrar (tiene contratos)
+            }
         }
+
+
 
         // =========================
         // FILTROS (INTERFAZ)
