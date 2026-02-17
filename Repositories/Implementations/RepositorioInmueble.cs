@@ -2,7 +2,6 @@ using InmobiliariaUlP_2025.Models;
 using InmobiliariaUlP_2025.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
-using System.Collections.Generic;
 
 namespace InmobiliariaUlP_2025.Repositories.Implementations
 {
@@ -16,20 +15,22 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         public List<Inmueble> ObtenerTodos()
         {
             var lista = new List<Inmueble>();
+            using var conn = GetConnection();
 
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
-
-            command.CommandText = @"
-                SELECT i.Id, i.PropietarioId, p.Apellido, p.Nombre, 
-                       i.Direccion, i.Uso, i.Tipo, i.NoAmbientes,
-                       i.Latitud, i.Longitud, i.Precio, i.Disponibilidad
+            var sql = @"
+                SELECT 
+                    i.Id, i.PropietarioId,
+                    p.Apellido, p.Nombre,
+                    i.Direccion, i.Uso, i.Tipo,
+                    i.NoAmbientes, i.Latitud, i.Longitud,
+                    i.Precio, i.Disponibilidad
                 FROM Inmuebles i
-                INNER JOIN Propietarios p ON p.Id = i.PropietarioId;
+                INNER JOIN Propietarios p ON p.Id = i.PropietarioId
             ";
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            using var cmd = new MySqlCommand(sql, conn);
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
@@ -62,51 +63,57 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         // =========================
         public Inmueble? Buscar(int id)
         {
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
+            using var conn = GetConnection();
 
-            command.CommandText = @"SELECT * FROM Inmuebles WHERE Id=@id;";
-            command.Parameters.AddWithValue("@id", id);
+            var sql = @"
+                SELECT *
+                FROM Inmuebles
+                WHERE Id = @id
+            ";
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             return reader.Read() ? new Inmueble(reader) : null;
         }
 
         // =========================
-        // ALTA (control UNIQUE Dirección)
+        // ALTA
         // =========================
         public int Alta(Inmueble i)
         {
             try
             {
-                using var connection = GetConnection();
-                using var command = connection.CreateCommand();
+                using var conn = GetConnection();
 
-                command.CommandText = @"
+                var sql = @"
                     INSERT INTO Inmuebles
                     (PropietarioId, Direccion, Uso, Tipo, NoAmbientes, Latitud, Longitud, Precio, Disponibilidad)
                     VALUES (@prop, @dir, @uso, @tipo, @amb, @lat, @lon, @precio, @disp);
                     SELECT LAST_INSERT_ID();
                 ";
 
-                command.Parameters.AddWithValue("@prop", i.PropietarioId);
-                command.Parameters.AddWithValue("@dir", i.Direccion);
-                command.Parameters.AddWithValue("@uso", i.Uso);
-                command.Parameters.AddWithValue("@tipo", i.Tipo);
-                command.Parameters.AddWithValue("@amb", i.NoAmbientes);
-                command.Parameters.AddWithValue("@lat", i.Latitud);
-                command.Parameters.AddWithValue("@lon", i.Longitud);
-                command.Parameters.AddWithValue("@precio", i.Precio);
-                command.Parameters.AddWithValue("@disp", i.Disponibilidad);
+                using var cmd = new MySqlCommand(sql, conn);
 
-                connection.Open();
-                return Convert.ToInt32(command.ExecuteScalar());
+                cmd.Parameters.AddWithValue("@prop", i.PropietarioId);
+                cmd.Parameters.AddWithValue("@dir", i.Direccion);
+                cmd.Parameters.AddWithValue("@uso", i.Uso);
+                cmd.Parameters.AddWithValue("@tipo", i.Tipo);
+                cmd.Parameters.AddWithValue("@amb", i.NoAmbientes);
+                cmd.Parameters.AddWithValue("@lat", i.Latitud);
+                cmd.Parameters.AddWithValue("@lon", i.Longitud);
+                cmd.Parameters.AddWithValue("@precio", i.Precio);
+                cmd.Parameters.AddWithValue("@disp", i.Disponibilidad);
+
+                conn.Open();
+                return Convert.ToInt32(cmd.ExecuteScalar());
             }
             catch (MySqlException)
             {
-                return -1; // Dirección duplicada
+                return -1;
             }
         }
 
@@ -115,10 +122,9 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         // =========================
         public int Modificacion(Inmueble i)
         {
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
+            using var conn = GetConnection();
 
-            command.CommandText = @"
+            var sql = @"
                 UPDATE Inmuebles SET
                     PropietarioId=@prop,
                     Direccion=@dir,
@@ -129,22 +135,24 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
                     Longitud=@lon,
                     Precio=@precio,
                     Disponibilidad=@disp
-                WHERE Id=@id;
+                WHERE Id=@id
             ";
 
-            command.Parameters.AddWithValue("@prop", i.PropietarioId);
-            command.Parameters.AddWithValue("@dir", i.Direccion);
-            command.Parameters.AddWithValue("@uso", i.Uso);
-            command.Parameters.AddWithValue("@tipo", i.Tipo);
-            command.Parameters.AddWithValue("@amb", i.NoAmbientes);
-            command.Parameters.AddWithValue("@lat", i.Latitud);
-            command.Parameters.AddWithValue("@lon", i.Longitud);
-            command.Parameters.AddWithValue("@precio", i.Precio);
-            command.Parameters.AddWithValue("@disp", i.Disponibilidad);
-            command.Parameters.AddWithValue("@id", i.Id);
+            using var cmd = new MySqlCommand(sql, conn);
 
-            connection.Open();
-            return command.ExecuteNonQuery();
+            cmd.Parameters.AddWithValue("@prop", i.PropietarioId);
+            cmd.Parameters.AddWithValue("@dir", i.Direccion);
+            cmd.Parameters.AddWithValue("@uso", i.Uso);
+            cmd.Parameters.AddWithValue("@tipo", i.Tipo);
+            cmd.Parameters.AddWithValue("@amb", i.NoAmbientes);
+            cmd.Parameters.AddWithValue("@lat", i.Latitud);
+            cmd.Parameters.AddWithValue("@lon", i.Longitud);
+            cmd.Parameters.AddWithValue("@precio", i.Precio);
+            cmd.Parameters.AddWithValue("@disp", i.Disponibilidad);
+            cmd.Parameters.AddWithValue("@id", i.Id);
+
+            conn.Open();
+            return cmd.ExecuteNonQuery();
         }
 
         // =========================
@@ -154,38 +162,44 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         {
             try
             {
-                using var connection = GetConnection();
-                using var command = connection.CreateCommand();
+                using var conn = GetConnection();
 
-                command.CommandText = "DELETE FROM Inmuebles WHERE Id=@id;";
-                command.Parameters.AddWithValue("@id", id);
+                var sql = @"
+                    DELETE FROM Inmuebles
+                    WHERE Id=@id
+                ";
 
-                connection.Open();
-                return command.ExecuteNonQuery();
+                using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                conn.Open();
+                return cmd.ExecuteNonQuery();
             }
             catch (MySqlException)
             {
-                return -1; // 👈 NO se pudo borrar (tiene contratos)
+                return -1;
             }
         }
 
-
-
         // =========================
-        // FILTROS (INTERFAZ)
+        // FILTROS
         // =========================
         public IList<Inmueble> ObtenerPorDisponibilidad(Disponibilidad dispo)
         {
             var lista = new List<Inmueble>();
+            using var conn = GetConnection();
 
-            using var connection = GetConnection();
-            using var command = new MySqlCommand(
-                "SELECT * FROM Inmuebles WHERE Disponibilidad=@d", connection);
+            var sql = @"
+                SELECT *
+                FROM Inmuebles
+                WHERE Disponibilidad = @d
+            ";
 
-            command.Parameters.AddWithValue("@d", (int)dispo);
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@d", (int)dispo);
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
                 lista.Add(new Inmueble(reader));
@@ -196,35 +210,22 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         public IList<Inmueble> ObtenerPorPropietario(int propietarioId)
         {
             var lista = new List<Inmueble>();
+            using var conn = GetConnection();
 
-            using var connection = GetConnection();
-            using var command = new MySqlCommand(
-                "SELECT * FROM Inmuebles WHERE PropietarioId=@id", connection);
+            var sql = @"
+                SELECT *
+                FROM Inmuebles
+                WHERE PropietarioId = @id
+            ";
 
-            command.Parameters.AddWithValue("@id", propietarioId);
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", propietarioId);
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
                 lista.Add(new Inmueble(reader));
-
-            return lista;
-        }
-
-        public List<Propietario> ObtenerPropietarios()
-        {
-            var lista = new List<Propietario>();
-
-            using var connection = GetConnection();
-            using var command = new MySqlCommand(
-                "SELECT Id, Apellido, Nombre FROM Propietarios", connection);
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
-                lista.Add(new Propietario(reader));
 
             return lista;
         }
@@ -232,11 +233,9 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         public IList<Inmueble> ObtenerDisponiblesEntreFechas(DateOnly inicio, DateOnly fin)
         {
             var lista = new List<Inmueble>();
+            using var conn = GetConnection();
 
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
-
-            command.CommandText = @"
+            var sql = @"
                 SELECT *
                 FROM Inmuebles i
                 WHERE i.Disponibilidad = @desocupado
@@ -244,24 +243,23 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
                     SELECT c.InmuebleId
                     FROM Contratos c
                     WHERE c.FechaInicio <= @fin
-                        AND c.FechaFin >= @inicio
-                );";
+                    AND c.FechaFin >= @inicio
+                )
+            ";
 
-            command.Parameters.AddWithValue("@inicio", inicio.ToDateTime(TimeOnly.MinValue));
-            command.Parameters.AddWithValue("@fin", fin.ToDateTime(TimeOnly.MinValue));
-            command.Parameters.AddWithValue("@suspendido", (int)Disponibilidad.SUSPENDIDO);
-            command.Parameters.AddWithValue("@desocupado", (int)Disponibilidad.DESOCUPADO);
+            using var cmd = new MySqlCommand(sql, conn);
 
+            cmd.Parameters.AddWithValue("@inicio", inicio.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@fin", fin.ToDateTime(TimeOnly.MinValue));
+            cmd.Parameters.AddWithValue("@desocupado", (int)Disponibilidad.DESOCUPADO);
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
                 lista.Add(new Inmueble(reader));
 
             return lista;
         }
-
-
     }
 }

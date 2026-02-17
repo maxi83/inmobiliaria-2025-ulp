@@ -12,53 +12,59 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         {
         }
 
-        // ============================================
-        // CREAR
-        // ============================================
+        // =========================
+        // ALTA
+        // =========================
         public int Alta(Propietario p)
         {
             try
             {
-                using var connection = GetConnection();
-                using var command = connection.CreateCommand();
+                using var conn = GetConnection();
 
-                command.CommandText = @"
-                    INSERT INTO Propietarios (Dni, Apellido, Nombre, Email, Telefono)
+                var sql = @"
+                    INSERT INTO Propietarios 
+                    (Dni, Apellido, Nombre, Email, Telefono)
                     VALUES (@dni, @apellido, @nombre, @correo, @telefono);
-                    SELECT LAST_INSERT_ID();";
+                    SELECT LAST_INSERT_ID();
+                ";
 
-                command.Parameters.AddWithValue("@dni", p.Dni);
-                command.Parameters.AddWithValue("@apellido", p.Apellido);
-                command.Parameters.AddWithValue("@nombre", p.Nombre);
-                command.Parameters.AddWithValue("@correo", p.Email);
-                command.Parameters.AddWithValue("@telefono", p.Telefono);
+                using var cmd = new MySqlCommand(sql, conn);
 
-                connection.Open();
-                int id = Convert.ToInt32(command.ExecuteScalar());
+                cmd.Parameters.AddWithValue("@dni", p.Dni);
+                cmd.Parameters.AddWithValue("@apellido", p.Apellido);
+                cmd.Parameters.AddWithValue("@nombre", p.Nombre);
+                cmd.Parameters.AddWithValue("@correo", p.Email);
+                cmd.Parameters.AddWithValue("@telefono", p.Telefono);
+
+                conn.Open();
+                int id = Convert.ToInt32(cmd.ExecuteScalar());
                 p.Id = id;
+
                 return id;
             }
             catch (MySqlException)
             {
-                // DNI o Email duplicado
-                return -1;
+                return -1; // DNI o Email duplicado
             }
         }
 
-        // ============================================
+        // =========================
         // OBTENER TODOS
-        // ============================================
+        // =========================
         public List<Propietario> ObtenerTodos()
         {
             var lista = new List<Propietario>();
+            using var conn = GetConnection();
 
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
+            var sql = @"
+                SELECT Id, Dni, Apellido, Nombre, Email, Telefono
+                FROM Propietarios
+            ";
 
-            command.CommandText = @"SELECT Id, Dni, Apellido, Nombre, Email, Telefono FROM Propietarios;";
+            using var cmd = new MySqlCommand(sql, conn);
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
@@ -76,29 +82,28 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return lista;
         }
 
-        // ============================================
+        // =========================
         // BUSCAR POR ID
-        // ============================================
+        // =========================
         public Propietario? Buscar(int id)
         {
-            Propietario? p = null;
+            using var conn = GetConnection();
 
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
-
-            command.CommandText = @"
+            var sql = @"
                 SELECT Id, Dni, Apellido, Nombre, Email, Telefono
                 FROM Propietarios
-                WHERE Id = @id;";
+                WHERE Id = @id
+            ";
 
-            command.Parameters.AddWithValue("@id", id);
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", id);
 
-            connection.Open();
-            using var reader = command.ExecuteReader();
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
 
             if (reader.Read())
             {
-                p = new Propietario
+                return new Propietario
                 {
                     Id = reader.GetInt32(0),
                     Dni = reader.GetString(1),
@@ -109,89 +114,74 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
                 };
             }
 
-            return p;
+            return null;
         }
 
-        // ============================================
-        // MODIFICAR
-        // ============================================
+        // =========================
+        // MODIFICACIÓN
+        // =========================
         public int Modificacion(Propietario p)
         {
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
+            using var conn = GetConnection();
 
-            command.CommandText = @"
+            var sql = @"
                 UPDATE Propietarios SET
-                    Dni=@dni, Apellido=@apellido, Nombre=@nombre,
-                    Email=@correo, Telefono=@telefono
-                WHERE Id=@id;";
+                    Dni=@dni,
+                    Apellido=@apellido,
+                    Nombre=@nombre,
+                    Email=@correo,
+                    Telefono=@telefono
+                WHERE Id=@id
+            ";
 
-            command.Parameters.AddWithValue("@dni", p.Dni);
-            command.Parameters.AddWithValue("@apellido", p.Apellido);
-            command.Parameters.AddWithValue("@nombre", p.Nombre);
-            command.Parameters.AddWithValue("@correo", p.Email);
-            command.Parameters.AddWithValue("@telefono", p.Telefono);
-            command.Parameters.AddWithValue("@id", p.Id);
+            using var cmd = new MySqlCommand(sql, conn);
 
-            connection.Open();
-            return command.ExecuteNonQuery();
+            cmd.Parameters.AddWithValue("@dni", p.Dni);
+            cmd.Parameters.AddWithValue("@apellido", p.Apellido);
+            cmd.Parameters.AddWithValue("@nombre", p.Nombre);
+            cmd.Parameters.AddWithValue("@correo", p.Email);
+            cmd.Parameters.AddWithValue("@telefono", p.Telefono);
+            cmd.Parameters.AddWithValue("@id", p.Id);
+
+            conn.Open();
+            return cmd.ExecuteNonQuery();
         }
 
-        // ============================================
-        // ELIMINAR
-        // ============================================
+        // =========================
+        // BAJA
+        // =========================
         public int Baja(int id)
         {
-            using var connection = GetConnection();
-            var sql = @"DELETE FROM Propietarios WHERE Id = @id;";
-            using var command = new MySqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@id", id);
-
             try
             {
-                connection.Open();
-                return command.ExecuteNonQuery();
+                using var conn = GetConnection();
+
+                var sql = @"
+                    DELETE FROM Propietarios
+                    WHERE Id = @id
+                ";
+
+                using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                conn.Open();
+                return cmd.ExecuteNonQuery();
             }
             catch (MySqlException ex)
             {
                 if (ex.Number == 1451)
-                    return -1;
+                    return -1; // Tiene inmuebles asociados
 
                 throw;
             }
         }
 
+        // =========================
+        // OBTENER POR ID (alias)
+        // =========================
         public Propietario? ObtenerPorId(int id)
         {
-            Propietario? p = null;
-
-            using var connection = GetConnection();
-            using var command = connection.CreateCommand();
-
-            command.CommandText = @"
-                SELECT Id, Dni, Apellido, Nombre, Telefono, Email
-                FROM Propietarios
-                WHERE Id = @id;";
-
-            command.Parameters.AddWithValue("@id", id);
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
-
-            if (reader.Read())
-            {
-                p = new Propietario
-                {
-                    Id = reader.GetInt32(0),
-                    Dni = reader.GetString(1),
-                    Apellido = reader.GetString(2),
-                    Nombre = reader.GetString(3),
-                    Telefono = reader.GetString(4),
-                    Email = reader.GetString(5)
-                };
-            }
-
-            return p;
+            return Buscar(id);
         }
     }
 }

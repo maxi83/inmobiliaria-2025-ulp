@@ -1,4 +1,5 @@
 @model IEnumerable<InmobiliariaUlP_2025.Models.Contrato>
+
 @if (TempData["Multa"] != null)
 {
     <div class="alert alert-warning">
@@ -15,8 +16,10 @@
 
 @if (!desdeInmueble)
 {
-    <div class="mb-3">
+    <div class="mb-3 d-flex gap-2">
         <a asp-action="Crear" class="btn btn-primary">Nuevo Contrato</a>
+        <a asp-action="Index" class="btn btn-secondary">Ver Todos</a>
+        <a asp-action="Vigentes" class="btn btn-info">Ver Vigentes</a>
     </div>
 }
 

@@ -26,5 +26,59 @@ namespace InmobiliariaUlP_2025.Controllers
             var pagos = repoPago.ObtenerPorContrato(id);
             return View(pagos);
         }
+
+        public IActionResult Crear(int contratoId)
+        {
+            var contrato = repoContrato.ObtenerPorId(contratoId);
+            if (contrato == null) return NotFound();
+
+            var pago = new Pago
+            {
+                ContratoId = contratoId
+            };
+
+            ViewBag.Contrato = contrato;
+
+            return View(pago);
+        }
+
+        [HttpPost]
+        public IActionResult Crear(Pago pago)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Contrato = repoContrato.ObtenerPorId(pago.ContratoId);
+                return View(pago);
+            }
+
+            repoPago.Alta(pago);
+
+            return RedirectToAction(nameof(PorContrato), 
+                new { id = pago.ContratoId });
+        }
+
+        [Authorize(Roles = "Administrador")]
+        public IActionResult Eliminar(int id)
+        {
+            var pago = repoPago.ObtenerPorId(id);
+            if (pago == null) return NotFound();
+
+            return View(pago);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost, ActionName("Eliminar")]
+        public IActionResult EliminarConfirmado(int id)
+        {
+            var pago = repoPago.ObtenerPorId(id);
+            if (pago == null) return NotFound();
+
+            repoPago.Baja(id);
+
+            return RedirectToAction(nameof(PorContrato), 
+                new { id = pago.ContratoId });
+        }
+
+
     }
 }

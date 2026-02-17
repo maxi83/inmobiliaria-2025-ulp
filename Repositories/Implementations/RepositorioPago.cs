@@ -8,15 +8,22 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
     {
         public RepositorioPago(IConfiguration config) : base(config) { }
 
+        // =========================
+        // ALTA
+        // =========================
         public int Alta(Pago pago)
         {
             using var conn = GetConnection();
+
             var sql = @"
-                INSERT INTO Pagos (NoPago, FechaPago, Importe, ContratoId)
+                INSERT INTO Pagos 
+                (NoPago, FechaPago, Importe, ContratoId)
                 VALUES (@noPago, @fecha, @importe, @contratoId);
-                SELECT LAST_INSERT_ID();";
+                SELECT LAST_INSERT_ID();
+            ";
 
             using var cmd = new MySqlCommand(sql, conn);
+
             cmd.Parameters.AddWithValue("@noPago", pago.NoPago);
             cmd.Parameters.AddWithValue("@fecha", pago.FechaPago.ToDateTime(TimeOnly.MinValue));
             cmd.Parameters.AddWithValue("@importe", pago.Importe);
@@ -26,17 +33,22 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        // 🔴 ESTE MÉTODO ES EL QUE FALTABA
+        // =========================
+        // MODIFICACIÓN
+        // =========================
         public int Modificacion(Pago pago)
         {
             using var conn = GetConnection();
+
             var sql = @"
                 UPDATE Pagos
                 SET FechaPago = @fecha,
                     Importe = @importe
-                WHERE Id = @id;";
+                WHERE Id = @id
+            ";
 
             using var cmd = new MySqlCommand(sql, conn);
+
             cmd.Parameters.AddWithValue("@fecha", pago.FechaPago.ToDateTime(TimeOnly.MinValue));
             cmd.Parameters.AddWithValue("@importe", pago.Importe);
             cmd.Parameters.AddWithValue("@id", pago.Id);
@@ -45,10 +57,18 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return cmd.ExecuteNonQuery();
         }
 
+        // =========================
+        // BAJA
+        // =========================
         public int Baja(int id)
         {
             using var conn = GetConnection();
-            var sql = @"DELETE FROM Pagos WHERE Id = @id;";
+
+            var sql = @"
+                DELETE FROM Pagos
+                WHERE Id = @id
+            ";
+
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@id", id);
 
@@ -56,10 +76,19 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return cmd.ExecuteNonQuery();
         }
 
+        // =========================
+        // OBTENER POR ID
+        // =========================
         public Pago? ObtenerPorId(int id)
         {
             using var conn = GetConnection();
-            var sql = @"SELECT * FROM Pagos WHERE Id = @id;";
+
+            var sql = @"
+                SELECT *
+                FROM Pagos
+                WHERE Id = @id
+            ";
+
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@id", id);
 
@@ -69,12 +98,21 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return reader.Read() ? new Pago(reader) : null;
         }
 
+        // =========================
+        // OBTENER POR CONTRATO
+        // =========================
         public IList<Pago> ObtenerPorContrato(int contratoId)
         {
             var lista = new List<Pago>();
-
             using var conn = GetConnection();
-            var sql = @"SELECT * FROM Pagos WHERE ContratoId = @id ORDER BY NoPago;";
+
+            var sql = @"
+                SELECT *
+                FROM Pagos
+                WHERE ContratoId = @id
+                ORDER BY NoPago
+            ";
+
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@id", contratoId);
 
@@ -87,10 +125,19 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return lista;
         }
 
+        // =========================
+        // OBTENER SIGUIENTE NÚMERO
+        // =========================
         public int ObtenerSiguienteNumeroPago(int contratoId)
         {
             using var conn = GetConnection();
-            var sql = @"SELECT IFNULL(MAX(NoPago), 0) + 1 FROM Pagos WHERE ContratoId = @id;";
+
+            var sql = @"
+                SELECT IFNULL(MAX(NoPago), 0) + 1
+                FROM Pagos
+                WHERE ContratoId = @id
+            ";
+
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@id", contratoId);
 

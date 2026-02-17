@@ -14,19 +14,37 @@
     Volver
 </a>
 
+<div class="mb-3">
+    <a asp-action="Crear"
+       asp-route-contratoId="@ViewBag.Contrato.Id"
+       class="btn btn-primary">
+        Nuevo Pago
+    </a>
+</div>
+
 <table class="table table-dark table-striped">
     <thead>
         <tr>
+            <th>N° Pago</th>
             <th>Fecha</th>
             <th>Monto</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var p in Model)
         {
             <tr>
+                <td>@p.NoPago</td>
                 <td>@p.FechaPago</td>
                 <td>$ @p.Importe</td>
+                <td>
+                    <a asp-action="Eliminar"
+                       asp-route-id="@p.Id"
+                       class="btn btn-danger btn-sm">
+                        Eliminar
+                    </a>
+                </td>
             </tr>
         }
     </tbody>
