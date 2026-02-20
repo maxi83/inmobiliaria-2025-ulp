@@ -11,6 +11,20 @@
     ViewData["Title"] = "Contratos";
     bool desdeInmueble = ViewBag.DesdeInmueble ?? false;
 }
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 
 <h1>Contratos</h1>
 
@@ -42,23 +56,27 @@
             <td>@c.Id</td>
             <td>@c.Inmueble?.Direccion</td>
             <td>@c.Inquilino?.Apellido, @c.Inquilino?.Nombre</td>
-            <td>@c.FechaInicio</td>
-            <td>@c.FechaFin</td>
+            <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
+            <td>@c.FechaFin.ToString("dd/MM/yyyy")</td>
             <td>$ @c.MontoMensual</td>
             <td>
                 <div class="d-flex gap-1">
+
                     @if (!desdeInmueble)
                     {
                         <a asp-action="Editar" asp-route-id="@c.Id" class="btn btn-secondary btn-sm">Editar</a>
                         <a asp-action="Eliminar" asp-route-id="@c.Id" class="btn btn-danger btn-sm">Eliminar</a>
                         <a asp-action="Terminar" asp-route-id="@c.Id" class="btn btn-warning btn-sm">Rescindir</a>
+                        <a asp-action="Renovar" asp-route-id="@c.Id" class="btn btn-success btn-sm">Renovar</a>
                     }
+
                     <a asp-controller="Pago"
                        asp-action="PorContrato"
                        asp-route-id="@c.Id"
                        class="btn btn-info btn-sm">
                         Pagos
                     </a>
+
                 </div>
             </td>
         </tr>

@@ -176,12 +176,5 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             }
         }
 
-        // =========================
-        // OBTENER POR ID (alias)
-        // =========================
-        public Propietario? ObtenerPorId(int id)
-        {
-            return Buscar(id);
-        }
     }
 }

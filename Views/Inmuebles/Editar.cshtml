@@ -51,8 +51,11 @@
 
     <div class="mb-3">
         <label asp-for="Disponibilidad"></label>
-        <select asp-for="Disponibilidad" class="form-select"
-                asp-items="Html.GetEnumSelectList<Disponibilidad>()"></select>
+        <select asp-for="Disponibilidad" class="form-select">
+            <option value="1">SUSPENDIDO</option>
+            <option value="2">DESOCUPADO</option>
+        </select>
+
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar cambios</button>

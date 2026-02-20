@@ -238,7 +238,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             var sql = @"
                 SELECT *
                 FROM Inmuebles i
-                WHERE i.Disponibilidad = @desocupado
+                WHERE i.Disponibilidad <> @suspendido
                 AND i.Id NOT IN (
                     SELECT c.InmuebleId
                     FROM Contratos c
@@ -251,7 +251,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             cmd.Parameters.AddWithValue("@inicio", inicio.ToDateTime(TimeOnly.MinValue));
             cmd.Parameters.AddWithValue("@fin", fin.ToDateTime(TimeOnly.MinValue));
-            cmd.Parameters.AddWithValue("@desocupado", (int)Disponibilidad.DESOCUPADO);
+            cmd.Parameters.AddWithValue("@suspendido", (int)Disponibilidad.SUSPENDIDO);
 
             conn.Open();
             using var reader = cmd.ExecuteReader();

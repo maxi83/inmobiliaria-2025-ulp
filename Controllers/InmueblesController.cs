@@ -120,7 +120,7 @@ namespace InmobiliariaUlP_2025.Controllers
 
                 return View(inmueble);
             }
-
+            TempData["Mensaje"] = "Inmueble creado correctamente.";
             // Si todo salió bien, redirige al listado
             return RedirectToAction(nameof(Index));
         }
@@ -151,7 +151,7 @@ namespace InmobiliariaUlP_2025.Controllers
 
             // Llama al repositorio para actualizar
             repositorioInmueble.Modificacion(inmueble);
-
+            TempData["Mensaje"] = "Inmueble editado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 

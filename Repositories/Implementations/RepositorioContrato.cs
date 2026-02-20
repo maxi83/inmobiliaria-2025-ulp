@@ -105,6 +105,27 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return res;
         }
 
+        public bool TieneContratosVigentes(int inmuebleId)
+        {
+            using var conn = new MySqlConnection(connectionString);
+
+            var sql = @"
+                SELECT COUNT(*)
+                FROM Contratos
+                WHERE InmuebleId = @id
+                AND FechaInicio <= CURDATE()
+                AND FechaFin >= CURDATE()
+            ";
+
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", inmuebleId);
+
+            conn.Open();
+            var cantidad = Convert.ToInt32(cmd.ExecuteScalar());
+
+            return cantidad > 0;
+        }
+
         public IList<Contrato> ObtenerPorInmueble(int inmuebleId)
         {
             var res = new List<Contrato>();
@@ -182,9 +203,14 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             using var conn = new MySqlConnection(connectionString);
 
             var sql = @"
-                SELECT *
-                FROM Contratos
-                WHERE Id = @id
+                SELECT 
+                    c.*,
+                    i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
+                    inm.Id AS InmId, inm.Direccion
+                FROM Contratos c
+                INNER JOIN Inquilinos i ON c.InquilinoId = i.Id
+                INNER JOIN Inmuebles inm ON c.InmuebleId = inm.Id
+                WHERE c.Id = @id
             ";
 
             using var cmd = new MySqlCommand(sql, conn);
@@ -193,9 +219,25 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             conn.Open();
             using var reader = cmd.ExecuteReader();
 
-            return reader.Read() ? new Contrato(reader) : null;
-        }
+            if (!reader.Read()) return null;
 
+            var contrato = new Contrato(reader);
+
+            contrato.Inquilino = new Inquilino
+            {
+                Id = reader.GetInt32("InqId"),
+                Nombre = reader.GetString("InqNombre"),
+                Apellido = reader.GetString("InqApellido")
+            };
+
+            contrato.Inmueble = new Inmueble
+            {
+                Id = reader.GetInt32("InmId"),
+                Direccion = reader.GetString("Direccion")
+            };
+
+            return contrato;
+        }
         public int Alta(Contrato contrato)
         {
             using var conn = new MySqlConnection(connectionString);
@@ -248,19 +290,27 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int Baja(int id)
         {
-            using var conn = new MySqlConnection(connectionString);
+            try
+            {
+                using var conn = new MySqlConnection(connectionString);
 
-            var sql = @"
-                DELETE FROM Contratos
-                WHERE Id = @id
-            ";
+                var sql = @"DELETE FROM Contratos WHERE Id = @id";
 
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@id", id);
+                using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
 
-            conn.Open();
-            return cmd.ExecuteNonQuery();
+                conn.Open();
+                return cmd.ExecuteNonQuery();
+            }
+            catch (MySqlException ex)
+            {
+                if (ex.Number == 1451)
+                    return -1; // Tiene pagos asociados
+
+                throw;
+            }
         }
+
 
         // =========================
         // LÓGICA

@@ -16,6 +16,7 @@ namespace InmobiliariaUlP_2025.Repositories.Interfaces
 
         // Requeridos por enunciado
         int ObtenerSiguienteNumeroContrato();
+         public bool TieneContratosVigentes(int inmuebleId);
         int TerminarContratoAnticipadamente(int id, DateOnly nuevaFechaFin);
         int RenovarContrato(Contrato nuevoContrato, int idContratoAnterior);
     }

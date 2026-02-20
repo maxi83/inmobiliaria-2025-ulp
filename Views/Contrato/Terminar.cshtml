@@ -6,6 +6,7 @@
     <strong>Inicio:</strong> @Model.FechaInicio.ToString("dd/MM/yyyy") <br />
     <strong>Fin actual:</strong> @Model.FechaFin.ToString("dd/MM/yyyy")
 </p>
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
 <form asp-action="Terminar" method="post">
     <input type="hidden" name="id" value="@Model.Id" />

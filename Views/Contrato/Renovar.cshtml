@@ -1,0 +1,29 @@
+@model InmobiliariaUlP_2025.Models.Contrato
+
+<h2>Renovar Contrato</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="Renovar" method="post">
+
+    <input type="hidden" asp-for="InmuebleId" />
+    <input type="hidden" asp-for="InquilinoId" />
+
+    <div class="mb-3">
+        <label asp-for="FechaInicio" class="form-label"></label>
+        <input asp-for="FechaInicio" class="form-control" type="date" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaFin" class="form-label"></label>
+        <input asp-for="FechaFin" class="form-control" type="date" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MontoMensual" class="form-label"></label>
+        <input asp-for="MontoMensual" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Renovación</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+</form>

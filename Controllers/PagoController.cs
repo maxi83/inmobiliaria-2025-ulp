@@ -34,7 +34,8 @@ namespace InmobiliariaUlP_2025.Controllers
 
             var pago = new Pago
             {
-                ContratoId = contratoId
+                ContratoId = contratoId,
+                Importe = contrato.MontoMensual   // 🔥 Se autocompleta con el monto mensual
             };
 
             ViewBag.Contrato = contrato;
@@ -42,20 +43,36 @@ namespace InmobiliariaUlP_2025.Controllers
             return View(pago);
         }
 
+
         [HttpPost]
         public IActionResult Crear(Pago pago)
         {
+            var contrato = repoContrato.ObtenerPorId(pago.ContratoId);
+            if (contrato == null) return NotFound();
+
             if (!ModelState.IsValid)
             {
-                ViewBag.Contrato = repoContrato.ObtenerPorId(pago.ContratoId);
+                ViewBag.Contrato = contrato;
+                return View(pago);
+            }
+
+            // 🔥 VALIDACIÓN DE FECHA DE PAGO
+            if (pago.FechaPago < contrato.FechaInicio ||
+                pago.FechaPago > contrato.FechaFin)
+            {
+                ModelState.AddModelError("",
+                    "La fecha del pago debe estar dentro del período del contrato.");
+
+                ViewBag.Contrato = contrato;
                 return View(pago);
             }
 
             repoPago.Alta(pago);
 
-            return RedirectToAction(nameof(PorContrato), 
+            return RedirectToAction(nameof(PorContrato),
                 new { id = pago.ContratoId });
         }
+
 
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)

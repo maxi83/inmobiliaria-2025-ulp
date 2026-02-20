@@ -98,7 +98,6 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(contrato);
             }
 
-            // 🔥 VALIDACIÓN OBLIGATORIA SEGÚN ENUNCIADO
             if (repoContrato.EstaOcupado(
                     contrato.InmuebleId,
                     contrato.FechaInicio,
@@ -111,10 +110,8 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(contrato);
             }
 
-            // Guarda el contrato
             repoContrato.Alta(contrato);
 
-            // Marca inmueble como ocupado
             var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
             if (inmueble != null)
             {
@@ -122,8 +119,10 @@ namespace InmobiliariaUlP_2025.Controllers
                 repoInmueble.Modificacion(inmueble);
             }
 
+            TempData["Mensaje"] = "Contrato creado correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
 
 
         // =========================
@@ -178,15 +177,39 @@ namespace InmobiliariaUlP_2025.Controllers
         }
 
         // Confirmación de eliminación
-        [Authorize(Roles = "Administrador")]
-        [HttpPost]
+       [Authorize(Roles = "Administrador")]
+        [HttpPost, ActionName("Eliminar")]
         public IActionResult EliminarConfirmado(int id)
         {
-            // Llama al repositorio para borrar el contrato
-            repoContrato.Baja(id);
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
 
+            var resultado = repoContrato.Baja(id);
+
+            if (resultado == -1)
+            {
+                TempData["Error"] = "No se puede eliminar el contrato porque tiene pagos asociados.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 🔥 Verificar si el inmueble quedó sin contratos
+            var tieneContratos = repoContrato.TieneContratosVigentes(contrato.InmuebleId);
+
+            if (!tieneContratos)
+            {
+                var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
+                if (inmueble != null)
+                {
+                    inmueble.Disponibilidad = Disponibilidad.DESOCUPADO;
+                    repoInmueble.Modificacion(inmueble);
+                }
+            }
+
+            TempData["Mensaje"] = "Contrato eliminado correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
+
 
         // =========================
         // TERMINAR / RESCINDIR
@@ -203,44 +226,47 @@ namespace InmobiliariaUlP_2025.Controllers
         }
 
         // Acción POST que calcula multa y finaliza el contrato
-        [HttpPost]
+       [HttpPost]
         public IActionResult Terminar(int id, DateOnly nuevaFechaFin)
         {
             var contrato = repoContrato.ObtenerPorId(id);
             if (contrato == null) return NotFound();
 
-            // Convierte DateOnly a DateTime agregando hora mínima
+            // 🔥 VALIDACIÓN DE FECHA
+            if (nuevaFechaFin < contrato.FechaInicio ||
+                nuevaFechaFin > contrato.FechaFin)
+            {
+                ModelState.AddModelError("",
+                    "La fecha de rescisión debe estar dentro del período del contrato.");
+
+                return View(contrato);
+            }
+
             var inicio = contrato.FechaInicio.ToDateTime(TimeOnly.MinValue);
             var finOriginal = contrato.FechaFin.ToDateTime(TimeOnly.MinValue);
             var finNuevo = nuevaFechaFin.ToDateTime(TimeOnly.MinValue);
 
-            // Calcula meses totales del contrato original
             int mesesTotales = (int)((finOriginal - inicio).TotalDays / 30);
-
-            // Calcula meses cumplidos hasta la nueva fecha
             int mesesCumplidos = (int)((finNuevo - inicio).TotalDays / 30);
 
-            // Operador ternario:
-            // Si cumplió menos de la mitad → multa = 2 meses
-            // Si no → multa = 1 mes
             decimal multa = mesesCumplidos < mesesTotales / 2
                 ? contrato.MontoMensual * 2
                 : contrato.MontoMensual;
 
-            // Actualiza fecha fin en base
             repoContrato.TerminarContratoAnticipadamente(id, nuevaFechaFin);
+
             var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
             if (inmueble != null)
             {
-                inmueble.Disponibilidad = Disponibilidad.DESOCUPADO; // tu enum exacto
+                inmueble.Disponibilidad = Disponibilidad.DESOCUPADO;
                 repoInmueble.Modificacion(inmueble);
             }
-                    // Guarda la multa en TempData como string
-            // Se convierte a string para evitar problemas de serialización
+
             TempData["Multa"] = multa.ToString("N2");
 
             return RedirectToAction(nameof(Index));
         }
+
 
         // =========================
         // COMBOS
@@ -250,7 +276,7 @@ namespace InmobiliariaUlP_2025.Controllers
        private void CargarCombos()
         {
             ViewBag.Inmuebles = repoInmueble.ObtenerTodos()
-                .Where(i => i.Disponibilidad == Disponibilidad.DESOCUPADO)
+                .Where(i => i.Disponibilidad != Disponibilidad.SUSPENDIDO)
                 .Select(i => new SelectListItem
                 {
                     Value = i.Id.ToString(),
@@ -270,6 +296,56 @@ namespace InmobiliariaUlP_2025.Controllers
         {
             return View("Index", repoContrato.ObtenerVigentes());
         }
+
+        public IActionResult Renovar(int id)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            var nuevoContrato = new Contrato
+            {
+                InmuebleId = contrato.InmuebleId,
+                InquilinoId = contrato.InquilinoId,
+                FechaInicio = contrato.FechaFin.AddDays(1),
+                FechaFin = contrato.FechaFin.AddYears(1),
+                MontoMensual = contrato.MontoMensual
+            };
+
+            return View(nuevoContrato);
+        }
+
+        [HttpPost]
+        public IActionResult Renovar(Contrato contrato)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(contrato);
+            }
+
+            // 🔥 VALIDAR SUPERPOSICIÓN
+            if (repoContrato.EstaOcupado(
+                    contrato.InmuebleId,
+                    contrato.FechaInicio,
+                    contrato.FechaFin))
+            {
+                ModelState.AddModelError("",
+                    "El inmueble ya está ocupado en esas fechas.");
+
+                return View(contrato);
+            }
+
+            repoContrato.Alta(contrato);
+
+            var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
+            if (inmueble != null)
+            {
+                inmueble.Disponibilidad = Disponibilidad.OCUPADO;
+                repoInmueble.Modificacion(inmueble);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
 
     }
 }
