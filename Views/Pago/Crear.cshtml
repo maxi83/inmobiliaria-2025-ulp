@@ -5,6 +5,7 @@
 }
 
 <h2>Nuevo Pago</h2>
+
 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
 <form asp-action="Crear" method="post">
@@ -23,7 +24,12 @@
     </div>
 
     <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-action="Index" asp-route-contratoId="@Model.ContratoId" class="btn btn-secondary">Volver</a>
+
+    <a asp-action="PorContrato"
+       asp-route-id="@Model.ContratoId"
+       class="btn btn-secondary">
+        Volver
+    </a>
 </form>
 
 @section Scripts {

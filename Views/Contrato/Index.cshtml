@@ -6,6 +6,12 @@
         Multa por rescisión: $@TempData["Multa"]
     </div>
 }
+@if (TempData["Deuda"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Deuda"]
+    </div>
+}
 
 @{
     ViewData["Title"] = "Contratos";

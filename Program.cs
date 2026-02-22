@@ -17,12 +17,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Login/Denegado";
     });
 
-// REPOSITORIOS (🔥 ASÍ, SIN LAMBDAS)
+// REPOSITORIOS
 builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioPago, RepositorioPago>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
+
+// 🔥 NUEVO
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 
 // CULTURA
 var culture = new CultureInfo("es-AR");

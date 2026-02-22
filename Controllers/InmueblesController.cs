@@ -1,197 +1,265 @@
-// Importa clases base de MVC (Controller, IActionResult, View, Redirect, etc.)
+// ===============================
+// ESPACIOS DE NOMBRES (USING)
+// ===============================
+
+// Permite usar las clases base del framework MVC como:
+// Controller, IActionResult, View(), RedirectToAction(), NotFound(), etc.
 using Microsoft.AspNetCore.Mvc;
 
-// Permite usar atributos como [Authorize] y control por roles
+// Permite usar autenticación y autorización mediante atributos como:
+// [Authorize] y control de roles.
 using Microsoft.AspNetCore.Authorization;
 
-// Permite usar las clases del modelo (Inmueble, Disponibilidad, etc.)
+// Permite acceder a las clases del modelo del dominio:
+// Inmueble, Propietario, Disponibilidad, etc.
 using InmobiliariaUlP_2025.Models;
 
-// Permite usar las interfaces de los repositorios
+// Permite utilizar las interfaces de los repositorios.
+// Esto desacopla la lógica de acceso a datos del controlador.
 using InmobiliariaUlP_2025.Repositories.Interfaces;
 
-// Define el espacio de nombres del controlador
+
+// ===============================
+// DEFINICIÓN DEL CONTROLADOR
+// ===============================
+
 namespace InmobiliariaUlP_2025.Controllers
 {
-    // Indica que todas las acciones requieren usuario logueado
+    /*
+     * Un Controller en ASP.NET MVC es una clase que:
+     * 1) Recibe peticiones HTTP del usuario.
+     * 2) Ejecuta lógica de negocio.
+     * 3) Se comunica con la capa de datos (Repositorio).
+     * 4) Devuelve una respuesta (Vista, Redirect, JSON, etc).
+     */
+
+    // Indica que todas las acciones requieren un usuario autenticado.
     [Authorize]
     public class InmueblesController : Controller
     {
-        // Repositorio para manejar los inmuebles (acceso a BD)
-        private readonly IRepositorioInmueble repositorioInmueble;
+        // ===============================
+        // INYECCIÓN DE DEPENDENCIAS
+        // ===============================
 
-        // Repositorio para manejar propietarios (se usa para combos y relaciones)
+        /*
+         * readonly significa que la variable solo puede asignarse
+         * una vez (en el constructor).
+         * 
+         * Se usan interfaces para aplicar el principio
+         * de Inversión de Dependencias (SOLID).
+         */
+
+        private readonly IRepositorioInmueble repositorioInmueble;
         private readonly IRepositorioPropietario repositorioPropietario;
 
-        // Constructor con inyección de dependencias
+        /*
+         * El constructor recibe los repositorios por inyección
+         * de dependencias (Dependency Injection).
+         * 
+         * Esto lo gestiona el contenedor de servicios
+         * configurado en Program.cs.
+         */
         public InmueblesController(
             IRepositorioInmueble repositorioInmueble,
             IRepositorioPropietario repositorioPropietario)
         {
-            // Se asignan los repositorios recibidos
             this.repositorioInmueble = repositorioInmueble;
             this.repositorioPropietario = repositorioPropietario;
         }
 
-        // Acción principal que lista inmuebles
-        // Recibe filtros opcionales:
-        // dispo = estado del inmueble (nullable)
-        // propietarioId = filtro por propietario (nullable)
-        // inicio y fin = rango de fechas (nullable)
+        // ======================================================
+        // INDEX - LISTADO PRINCIPAL CON FILTROS
+        // ======================================================
+
+        /*
+         * IActionResult es un tipo de retorno que representa
+         * una respuesta HTTP abstracta.
+         * 
+         * Puede devolver:
+         * - View()
+         * - Redirect()
+         * - NotFound()
+         * - Json()
+         * etc.
+         * 
+         * Disponibilidad? indica que el parámetro es nullable.
+         * El signo ? significa que puede ser null.
+         */
         public IActionResult Index(
             Disponibilidad? dispo,
             int? propietarioId,
             DateTime? inicio,
             DateTime? fin)
         {
-            // Carga todos los propietarios para el combo de filtro
+            /*
+             * ViewBag es un objeto dinámico que permite enviar datos
+             * del Controller a la Vista sin tipado fuerte.
+             */
             ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
 
-            // Obtiene todos los inmuebles inicialmente
+            /*
+             * Se obtiene la lista completa desde la base de datos.
+             * Esta llamada va:
+             * Controller → Repositorio → MySQL
+             */
             var inmuebles = repositorioInmueble.ObtenerTodos();
 
-            // Si se ingresaron fechas, filtra por disponibilidad entre fechas
+            /*
+             * DateTime representa fecha y hora.
+             * DateTime? significa que puede ser null.
+             * 
+             * HasValue verifica que no sea null.
+             */
             if (inicio.HasValue && fin.HasValue)
             {
-                // Convierte DateTime a DateOnly (solo fecha sin hora)
+                /*
+                 * DateOnly almacena solo la fecha sin hora.
+                 * Se convierte desde DateTime.
+                 */
                 var inicioDateOnly = DateOnly.FromDateTime(inicio.Value);
                 var finDateOnly = DateOnly.FromDateTime(fin.Value);
 
-                // Llama al método que trae solo los disponibles en ese rango
+                /*
+                 * Se consulta al repositorio los inmuebles
+                 * que no tengan contratos superpuestos en ese rango.
+                 */
                 inmuebles = repositorioInmueble
                     .ObtenerDisponiblesEntreFechas(inicioDateOnly, finDateOnly)
                     .ToList();
             }
 
-            // Si se seleccionó un estado (Disponible, Ocupado, Suspendido)
+            /*
+             * Filtrado en memoria usando LINQ.
+             * Where aplica una condición.
+             */
             if (dispo.HasValue)
             {
-                // Filtra en memoria por estado
                 inmuebles = inmuebles
                     .Where(i => i.Disponibilidad == dispo.Value)
                     .ToList();
             }
 
-            // Si se seleccionó un propietario específico
             if (propietarioId.HasValue)
             {
-                // Filtra en memoria por propietario
                 inmuebles = inmuebles
                     .Where(i => i.PropietarioId == propietarioId.Value)
                     .ToList();
             }
 
-            // Devuelve la vista con la lista final filtrada
+            /*
+             * View(inmuebles) envía el modelo a la Vista.
+             * La Vista lo recibe como @model IEnumerable<Inmueble>
+             */
             return View(inmuebles);
         }
 
-        // Acción GET que muestra el formulario de creación
+
+        // ======================================================
+        // CREAR (GET)
+        // ======================================================
+
+        /*
+         * Método que responde a una petición HTTP GET.
+         * Solo muestra el formulario.
+         */
         public IActionResult Crear()
         {
-            // Carga propietarios para el combo del formulario
+            // Carga propietarios para el combo desplegable.
             ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
 
             return View();
         }
 
-        // Acción POST para crear un inmueble
+
+        // ======================================================
+        // CREAR (POST)
+        // ======================================================
+
+        /*
+         * [HttpPost] indica que responde a una petición POST.
+         * POST se usa cuando se modifican datos.
+         */
         [HttpPost]
         public IActionResult Crear(Inmueble inmueble)
         {
-            // Si el modelo no pasa validaciones
+            /*
+             * ModelState contiene el resultado de las validaciones
+             * definidas con DataAnnotations en el modelo.
+             */
             if (!ModelState.IsValid)
             {
-                // Se vuelven a cargar propietarios porque se pierde el ViewBag
                 ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
-
                 return View(inmueble);
             }
 
-            // Llama al repositorio para insertar
+            /*
+             * Alta ejecuta un INSERT en la base de datos.
+             */
             var resultado = repositorioInmueble.Alta(inmueble);
 
-            // Si devuelve -1 significa error (por ejemplo dirección duplicada)
+            /*
+             * -1 puede representar una regla de negocio incumplida.
+             * En este caso dirección duplicada.
+             */
             if (resultado == -1)
             {
                 ViewBag.Error = "La dirección ya existe.";
-
-                // Se vuelve a cargar combo
                 ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
-
                 return View(inmueble);
             }
+
+            /*
+             * TempData permite enviar mensajes entre requests.
+             * Se usa en patrón PRG (Post-Redirect-Get).
+             */
             TempData["Mensaje"] = "Inmueble creado correctamente.";
-            // Si todo salió bien, redirige al listado
+
             return RedirectToAction(nameof(Index));
         }
 
-        // Acción GET para editar
-        public IActionResult Editar(int id)
-        {
-            // Busca inmueble por id
-            var inmueble = repositorioInmueble.Buscar(id);
 
-            if (inmueble == null) return NotFound();
+        // ======================================================
+        // ELIMINAR
+        // ======================================================
 
-            // Carga propietarios para combo
-            ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
-
-            return View(inmueble);
-        }
-
-        // Acción POST para guardar edición
-        [HttpPost]
-        public IActionResult Editar(Inmueble inmueble)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
-                return View(inmueble);
-            }
-
-            // Llama al repositorio para actualizar
-            repositorioInmueble.Modificacion(inmueble);
-            TempData["Mensaje"] = "Inmueble editado correctamente.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        // Solo administrador puede eliminar
+        /*
+         * Solo usuarios con rol Administrador
+         * pueden ejecutar esta acción.
+         */
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
         {
             var inmueble = repositorioInmueble.Buscar(id);
 
-            if (inmueble == null) return NotFound();
+            if (inmueble == null)
+                return NotFound();
 
             return View(inmueble);
         }
 
-        // Acción POST que confirma eliminación
+        /*
+         * Confirmación de eliminación.
+         * También restringida por rol.
+         */
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         public IActionResult ConfirmarEliminar(int id)
         {
             var resultado = repositorioInmueble.Baja(id);
 
-            // Si tiene contratos asociados
+            /*
+             * Regla de integridad referencial:
+             * No eliminar si tiene contratos asociados.
+             */
             if (resultado == -1)
             {
-                TempData["Error"] = "No se puede eliminar el inmueble porque tiene contratos asociados.";
+                TempData["Error"] =
+                    "No se puede eliminar el inmueble porque tiene contratos asociados.";
                 return RedirectToAction(nameof(Index));
             }
 
             TempData["Mensaje"] = "Inmueble eliminado correctamente.";
             return RedirectToAction(nameof(Index));
-        }
-
-        // Acción GET para ver detalles
-        public IActionResult Detalles(int id)
-        {
-            var inmueble = repositorioInmueble.Buscar(id);
-
-            if (inmueble == null) return NotFound();
-
-            return View(inmueble);
         }
     }
 }

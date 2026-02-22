@@ -1,108 +1,154 @@
-// Permite usar las clases base de ASP.NET Core MVC (Controller, IActionResult, View, Redirect, etc.)
+// ===============================
+// IMPORTACIONES (USING)
+// ===============================
+
+// Importa las clases base del framework MVC:
+// Controller, IActionResult, View(), RedirectToAction(), ModelState, etc.
 using Microsoft.AspNetCore.Mvc;
 
-// Permite usar atributos de autorización como [Authorize] y control por roles
+// Permite usar atributos de seguridad como [Authorize]
+// y control de acceso por roles.
 using Microsoft.AspNetCore.Authorization;
 
-// Permite usar SelectListItem para construir combos (<select>) en las vistas
+// Permite usar SelectListItem para generar opciones
+// en listas desplegables (<select>) dentro de las vistas.
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-// Permite usar las clases del modelo (Contrato, Inmueble, Inquilino, etc.)
+// Importa las clases del modelo del dominio:
+// Contrato, Inmueble, Inquilino, Disponibilidad, etc.
 using InmobiliariaUlP_2025.Models;
 
-// Permite usar las interfaces de los repositorios (acceso a datos)
+// Importa las interfaces de los repositorios.
+// Estas interfaces permiten acceder a la base de datos
+// sin acoplar el controlador a una implementación concreta.
 using InmobiliariaUlP_2025.Repositories.Interfaces;
 
-// Espacio de nombres lógico que organiza esta clase dentro del proyecto
+
+// ===============================
+// DEFINICIÓN DEL CONTROLADOR
+// ===============================
+
 namespace InmobiliariaUlP_2025.Controllers
 {
-    // Indica que todas las acciones de este controlador requieren usuario logueado
+    // El atributo Authorize indica que todas las acciones
+    // requieren que el usuario esté autenticado (logueado).
     [Authorize]
     public class ContratoController : Controller
     {
-        // Campo privado y readonly que guarda el repositorio de contratos
-        // readonly significa que solo se puede asignar en el constructor
+        // =====================================================
+        // CAMPOS PRIVADOS (DEPENDENCIAS)
+        // =====================================================
+
+        // readonly indica que la variable solo puede asignarse
+        // dentro del constructor y luego no puede modificarse.
         private readonly IRepositorioContrato repoContrato;
 
-        // Repositorio para acceder a datos de inmuebles
+        // Repositorio encargado de acceder a la tabla Pagos.
+        private readonly IRepositorioPago repoPago;
+
+        // Repositorio para consultar y modificar inmuebles.
         private readonly IRepositorioInmueble repoInmueble;
 
-        // Repositorio para acceder a datos de inquilinos
+        // Repositorio para consultar inquilinos.
         private readonly IRepositorioInquilino repoInquilino;
 
-        // Constructor: ASP.NET inyecta automáticamente las dependencias
+
+        // =====================================================
+        // CONSTRUCTOR (INYECCIÓN DE DEPENDENCIAS)
+        // =====================================================
+
+        // El framework ASP.NET Core inyecta automáticamente
+        // las implementaciones configuradas en Program.cs.
         public ContratoController(
             IRepositorioContrato repoContrato,
             IRepositorioInmueble repoInmueble,
-            IRepositorioInquilino repoInquilino)
+            IRepositorioInquilino repoInquilino,
+            IRepositorioPago repoPago)
         {
-            // Se asignan las dependencias recibidas a los campos privados
+            // Se asignan las dependencias recibidas
+            // a los campos privados del controlador.
             this.repoContrato = repoContrato;
             this.repoInmueble = repoInmueble;
             this.repoInquilino = repoInquilino;
+            this.repoPago = repoPago;
         }
 
-        // =========================
-        // LISTADO GENERAL
-        // =========================
 
-        // Acción GET que muestra todos los contratos
+        // =====================================================
+        // INDEX - LISTADO GENERAL DE CONTRATOS
+        // =====================================================
+
+        // Acción HTTP GET que muestra todos los contratos.
         public IActionResult Index()
         {
-            // ViewBag.DesdeInmueble es una bandera (true/false)
-            // Sirve para que la vista sepa desde dónde fue llamada
+            // ViewBag es un objeto dinámico que permite
+            // enviar información adicional a la vista.
             ViewBag.DesdeInmueble = false;
 
-            // Devuelve la vista Index.cshtml con todos los contratos como modelo
+            // Se obtiene la lista completa desde el repositorio
+            // y se envía como modelo a la vista.
             return View(repoContrato.ObtenerTodos());
         }
 
-        // =========================
-        // LISTADO DESDE INMUEBLE
-        // =========================
 
-        // Acción GET que muestra los contratos de un inmueble específico
+        // =====================================================
+        // LISTADO FILTRADO POR INMUEBLE
+        // =====================================================
+
+        // Muestra los contratos asociados a un inmueble específico.
         public IActionResult PorInmueble(int id)
         {
-            // Indica que la vista viene desde un inmueble
+            // Indica que el listado proviene desde un inmueble.
             ViewBag.DesdeInmueble = true;
 
-            // Carga el inmueble para mostrar sus datos en la vista
+            // Busca el inmueble para mostrar sus datos en la vista.
             ViewBag.Inmueble = repoInmueble.Buscar(id);
 
-            // Devuelve la misma vista Index pero con contratos filtrados
+            // Devuelve la vista Index reutilizándola
+            // pero con contratos filtrados.
             return View("Index", repoContrato.ObtenerPorInmueble(id));
         }
 
-        // =========================
-        // CREAR
-        // =========================
 
-        // Acción GET que muestra el formulario de creación
+        // =====================================================
+        // CREAR (GET)
+        // =====================================================
+
+        // Muestra el formulario para crear un contrato.
         public IActionResult Crear()
         {
-            // Carga los combos (inmuebles e inquilinos)
+            // Carga listas desplegables (combos).
             CargarCombos();
 
-            // Devuelve la vista Crear con un objeto nuevo vacío
+            // Envía un objeto vacío para que la vista lo complete.
             return View(new Contrato());
         }
 
-        // Acción POST que recibe el contrato enviado desde el formulario
+
+        // =====================================================
+        // CREAR (POST)
+        // =====================================================
+
+        // Indica que responde a una petición HTTP POST.
         [HttpPost]
         public IActionResult Crear(Contrato contrato)
         {
+            // ModelState contiene el resultado de validaciones
+            // definidas mediante DataAnnotations en el modelo.
             if (!ModelState.IsValid)
             {
                 CargarCombos();
                 return View(contrato);
             }
 
+            // Verifica que no exista superposición de fechas
+            // para el mismo inmueble.
             if (repoContrato.EstaOcupado(
                     contrato.InmuebleId,
                     contrato.FechaInicio,
                     contrato.FechaFin))
             {
+                // Agrega un error general al modelo.
                 ModelState.AddModelError("",
                     "El inmueble ya está ocupado en esas fechas.");
 
@@ -110,8 +156,10 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(contrato);
             }
 
+            // Inserta el nuevo contrato en la base de datos.
             repoContrato.Alta(contrato);
 
+            // Cambia el estado del inmueble a OCUPADO.
             var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
             if (inmueble != null)
             {
@@ -119,142 +167,72 @@ namespace InmobiliariaUlP_2025.Controllers
                 repoInmueble.Modificacion(inmueble);
             }
 
+            // TempData permite mantener datos entre requests
+            // luego de un Redirect.
             TempData["Mensaje"] = "Contrato creado correctamente.";
+
+            // Patrón PRG (Post-Redirect-Get).
             return RedirectToAction(nameof(Index));
         }
 
 
+        // =====================================================
+        // TERMINAR CONTRATO ANTICIPADAMENTE
+        // =====================================================
 
-        // =========================
-        // EDITAR
-        // =========================
-
-        // Acción GET para mostrar formulario de edición
-        public IActionResult Editar(int id)
-        {
-            // Busca el contrato por id
-            var contrato = repoContrato.ObtenerPorId(id);
-
-            // Si no existe, devuelve error 404
-            if (contrato == null) return NotFound();
-
-            // Carga combos nuevamente
-            CargarCombos();
-
-            // Devuelve la vista con el contrato como modelo
-            return View(contrato);
-        }
-
-        // Acción POST que procesa la modificación
-        [HttpPost]
-        public IActionResult Editar(Contrato contrato)
-        {
-            if (!ModelState.IsValid)
-            {
-                CargarCombos();
-                return View(contrato);
-            }
-
-            // Llama al repositorio para actualizar en la base
-            repoContrato.Modificacion(contrato);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        // =========================
-        // ELIMINAR (ADMIN)
-        // =========================
-
-        // Solo el rol Administrador puede eliminar
-        [Authorize(Roles = "Administrador")]
-        public IActionResult Eliminar(int id)
-        {
-            var contrato = repoContrato.ObtenerPorId(id);
-
-            if (contrato == null) return NotFound();
-
-            return View(contrato);
-        }
-
-        // Confirmación de eliminación
-       [Authorize(Roles = "Administrador")]
-        [HttpPost, ActionName("Eliminar")]
-        public IActionResult EliminarConfirmado(int id)
-        {
-            var contrato = repoContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
-
-            var resultado = repoContrato.Baja(id);
-
-            if (resultado == -1)
-            {
-                TempData["Error"] = "No se puede eliminar el contrato porque tiene pagos asociados.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            // 🔥 Verificar si el inmueble quedó sin contratos
-            var tieneContratos = repoContrato.TieneContratosVigentes(contrato.InmuebleId);
-
-            if (!tieneContratos)
-            {
-                var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
-                if (inmueble != null)
-                {
-                    inmueble.Disponibilidad = Disponibilidad.DESOCUPADO;
-                    repoInmueble.Modificacion(inmueble);
-                }
-            }
-
-            TempData["Mensaje"] = "Contrato eliminado correctamente.";
-            return RedirectToAction(nameof(Index));
-        }
-
-
-
-        // =========================
-        // TERMINAR / RESCINDIR
-        // =========================
-
-        // Muestra la pantalla para terminar contrato anticipadamente
         public IActionResult Terminar(int id)
         {
             var contrato = repoContrato.ObtenerPorId(id);
 
-            if (contrato == null) return NotFound();
+            if (contrato == null)
+                return NotFound();
 
             return View(contrato);
         }
 
-        // Acción POST que calcula multa y finaliza el contrato
-       [HttpPost]
+        [HttpPost]
         public IActionResult Terminar(int id, DateOnly nuevaFechaFin)
         {
             var contrato = repoContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
+            if (contrato == null)
+                return NotFound();
 
-            // 🔥 VALIDACIÓN DE FECHA
+            // Valida que la fecha esté dentro del rango original.
             if (nuevaFechaFin < contrato.FechaInicio ||
                 nuevaFechaFin > contrato.FechaFin)
             {
                 ModelState.AddModelError("",
-                    "La fecha de rescisión debe estar dentro del período del contrato.");
+                    "La fecha debe estar dentro del período del contrato.");
 
                 return View(contrato);
             }
 
+            // Conversión a DateTime para poder calcular diferencias.
             var inicio = contrato.FechaInicio.ToDateTime(TimeOnly.MinValue);
             var finOriginal = contrato.FechaFin.ToDateTime(TimeOnly.MinValue);
             var finNuevo = nuevaFechaFin.ToDateTime(TimeOnly.MinValue);
 
+            // Cálculo aproximado de meses.
             int mesesTotales = (int)((finOriginal - inicio).TotalDays / 30);
             int mesesCumplidos = (int)((finNuevo - inicio).TotalDays / 30);
 
+            // Regla de multa:
+            // Si cumplió menos de la mitad → paga 2 meses.
             decimal multa = mesesCumplidos < mesesTotales / 2
                 ? contrato.MontoMensual * 2
                 : contrato.MontoMensual;
 
+            // Obtiene pagos realizados.
+            var pagos = repoPago.ObtenerPorContrato(id);
+
+            int mesesAdeudados = mesesCumplidos - pagos.Count();
+            if (mesesAdeudados < 0)
+                mesesAdeudados = 0;
+
+            // Actualiza fecha de finalización.
             repoContrato.TerminarContratoAnticipadamente(id, nuevaFechaFin);
 
+            // Libera el inmueble.
             var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
             if (inmueble != null)
             {
@@ -264,17 +242,24 @@ namespace InmobiliariaUlP_2025.Controllers
 
             TempData["Multa"] = multa.ToString("N2");
 
+            if (mesesAdeudados > 0)
+            {
+                TempData["Deuda"] =
+                    $"El inquilino adeuda {mesesAdeudados} mes(es).";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
 
-        // =========================
-        // COMBOS
-        // =========================
+        // =====================================================
+        // MÉTODO AUXILIAR PARA CARGAR COMBOS
+        // =====================================================
 
-        // Método privado auxiliar que carga combos para formularios
-       private void CargarCombos()
+        // Método privado: solo se usa dentro de esta clase.
+        private void CargarCombos()
         {
+            // Genera lista para el combo de inmuebles.
             ViewBag.Inmuebles = repoInmueble.ObtenerTodos()
                 .Where(i => i.Disponibilidad != Disponibilidad.SUSPENDIDO)
                 .Select(i => new SelectListItem
@@ -284,6 +269,7 @@ namespace InmobiliariaUlP_2025.Controllers
                 })
                 .ToList();
 
+            // Genera lista para el combo de inquilinos.
             ViewBag.Inquilinos = repoInquilino.ObtenerTodos()
                 .Select(i => new SelectListItem
                 {
@@ -292,60 +278,5 @@ namespace InmobiliariaUlP_2025.Controllers
                 })
                 .ToList();
         }
-        public IActionResult Vigentes()
-        {
-            return View("Index", repoContrato.ObtenerVigentes());
-        }
-
-        public IActionResult Renovar(int id)
-        {
-            var contrato = repoContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
-
-            var nuevoContrato = new Contrato
-            {
-                InmuebleId = contrato.InmuebleId,
-                InquilinoId = contrato.InquilinoId,
-                FechaInicio = contrato.FechaFin.AddDays(1),
-                FechaFin = contrato.FechaFin.AddYears(1),
-                MontoMensual = contrato.MontoMensual
-            };
-
-            return View(nuevoContrato);
-        }
-
-        [HttpPost]
-        public IActionResult Renovar(Contrato contrato)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(contrato);
-            }
-
-            // 🔥 VALIDAR SUPERPOSICIÓN
-            if (repoContrato.EstaOcupado(
-                    contrato.InmuebleId,
-                    contrato.FechaInicio,
-                    contrato.FechaFin))
-            {
-                ModelState.AddModelError("",
-                    "El inmueble ya está ocupado en esas fechas.");
-
-                return View(contrato);
-            }
-
-            repoContrato.Alta(contrato);
-
-            var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
-            if (inmueble != null)
-            {
-                inmueble.Disponibilidad = Disponibilidad.OCUPADO;
-                repoInmueble.Modificacion(inmueble);
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-
     }
 }

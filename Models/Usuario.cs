@@ -13,6 +13,7 @@ namespace InmobiliariaUlP_2025.Models
         public string Password { get; set; } = "";
 
         [Required]
-        public string Rol { get; set; } = ""; // "Administrador" o "Empleado"
+        public string Rol { get; set; } = "";
+        public string? Foto { get; set; }
     }
 }

@@ -1,0 +1,48 @@
+@model InmobiliariaUlP_2025.Models.Usuario
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<h2>Mi Perfil</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+<form asp-action="Perfil" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label>Nueva contraseña</label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <small class="text-muted">Dejar vacío si no desea cambiarla.</small>
+    </div>
+
+    <div class="mb-3">
+        <label>Foto de perfil</label>
+        <input type="file" name="fotoArchivo" class="form-control" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Foto))
+    {
+        <div class="mb-3">
+            <label>Foto actual:</label><br />
+            <img src="@Model.Foto" width="120" style="object-fit:cover;" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-success">
+        Guardar cambios
+    </button>
+
+</form>

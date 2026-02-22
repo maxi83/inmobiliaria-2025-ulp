@@ -27,7 +27,7 @@ namespace InmobiliariaUlP_2025.Controllers
             return View(pagos);
         }
 
-        public IActionResult Crear(int contratoId)
+        public IActionResult Crear(int contratoId, int? inmuebleId, bool desdeInmueble = false)
         {
             var contrato = repoContrato.ObtenerPorId(contratoId);
             if (contrato == null) return NotFound();
@@ -35,10 +35,12 @@ namespace InmobiliariaUlP_2025.Controllers
             var pago = new Pago
             {
                 ContratoId = contratoId,
-                Importe = contrato.MontoMensual   // 🔥 Se autocompleta con el monto mensual
+                Importe = contrato.MontoMensual
             };
 
             ViewBag.Contrato = contrato;
+            ViewBag.InmuebleId = inmuebleId;
+            ViewBag.DesdeInmueble = desdeInmueble;
 
             return View(pago);
         }

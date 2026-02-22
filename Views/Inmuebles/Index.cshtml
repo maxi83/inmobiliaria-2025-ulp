@@ -1,4 +1,9 @@
 @model IEnumerable<InmobiliariaUlP_2025.Models.Inmueble>
+
+<!-- 
+    Mensaje de error mostrado luego de una operación (crear, editar, eliminar).
+    Se utiliza TempData para persistir el mensaje después de un Redirect.
+-->
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">
@@ -6,6 +11,9 @@
     </div>
 }
 
+<!-- 
+    Mensaje de éxito mostrado luego de una operación exitosa.
+-->
 @if (TempData["Mensaje"] != null)
 {
     <div class="alert alert-success">
@@ -17,19 +25,38 @@
     ViewData["Title"] = "Inmuebles";
 }
 
+<!-- 
+    Encabezado principal del módulo.
+    Contiene el título y el botón para iniciar el flujo de creación.
+-->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">Listado de Inmuebles</h1>
 
+    <!-- 
+        Botón que inicia el flujo:
+        Index → Crear (GET) → Vista Create.
+        No envía datos, solo navega al formulario de alta.
+    -->
     <a asp-action="Crear" class="btn btn-primary">
         Nuevo Inmueble
     </a>
 </div>
 
-<!-- FILTROS -->
+<!-- ===================== -->
+<!-- BLOQUE DE FILTROS     -->
+<!-- ===================== -->
+
 <div class="card mb-4">
     <div class="card-body">
+
+        <!-- 
+            Formulario con método GET.
+            Se usa GET porque es un listado con filtros (no modifica datos).
+            Envía parámetros al método Index del controller.
+        -->
         <form method="get" asp-action="Index" class="row g-3 align-items-end">
 
+            <!-- Filtro por estado/disponibilidad -->
             <div class="col-md-3">
                 <label class="form-label">Disponibilidad</label>
                 <select name="dispo" class="form-select">
@@ -41,6 +68,7 @@
                 </select>
             </div>
 
+            <!-- Filtro por propietario -->
             <div class="col-md-3">
                 <label class="form-label">Propietario</label>
                 <select name="propietarioId" class="form-select">
@@ -52,16 +80,19 @@
                 </select>
             </div>
 
+            <!-- Filtro por fecha inicio (para disponibilidad futura) -->
             <div class="col-md-3">
                 <label class="form-label">Desde</label>
                 <input type="date" name="inicio" class="form-control" />
             </div>
 
+            <!-- Filtro por fecha fin -->
             <div class="col-md-3">
                 <label class="form-label">Hasta</label>
                 <input type="date" name="fin" class="form-control" />
             </div>
 
+            <!-- Botón que ejecuta el filtro -->
             <div class="col-md-12 text-end">
                 <button class="btn btn-success mt-2">
                     Filtrar
@@ -72,7 +103,10 @@
     </div>
 </div>
 
-<!-- TABLA -->
+<!-- ===================== -->
+<!-- TABLA DE RESULTADOS   -->
+<!-- ===================== -->
+
 <div class="table-responsive">
     <table class="table table-dark table-striped table-sm align-middle">
         <thead>
@@ -85,7 +119,12 @@
                 <th class="text-center" style="width:300px;">Acciones</th>
             </tr>
         </thead>
+
         <tbody>
+            <!-- 
+                Se recorren todos los inmuebles enviados por el Controller.
+                El Model es IEnumerable<Inmueble>.
+            -->
             @foreach (var i in Model)
             {
                 <tr>
@@ -93,21 +132,48 @@
                     <td>@i.Propietario?.Apellido @i.Propietario?.Nombre</td>
                     <td>@i.Uso</td>
                     <td>@i.Tipo</td>
+
+                    <!-- Estado visual del inmueble -->
                     <td class="text-center">
                         <span class="badge bg-secondary">@i.Disponibilidad</span>
                     </td>
+
+                    <!-- Acciones disponibles para cada inmueble -->
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-1 flex-nowrap">
-                            <a asp-action="Detalles" asp-route-id="@i.Id" class="btn btn-info btn-sm">Detalles</a>
-                            <a asp-action="Editar" asp-route-id="@i.Id" class="btn btn-secondary btn-sm">Editar</a>
+
+                            <!-- Ver detalles -->
+                            <a asp-action="Detalles"
+                               asp-route-id="@i.Id"
+                               class="btn btn-info btn-sm">
+                                Detalles
+                            </a>
+
+                            <!-- Editar inmueble -->
+                            <a asp-action="Editar"
+                               asp-route-id="@i.Id"
+                               class="btn btn-secondary btn-sm">
+                                Editar
+                            </a>
+
+                            <!-- 
+                                Ver contratos asociados.
+                                Cambia de Controller (Contrato).
+                            -->
                             <a asp-controller="Contrato"
-                            asp-action="PorInmueble"
-                            asp-route-id="@i.Id"
-                            class="btn btn-primary btn-sm">
+                               asp-action="PorInmueble"
+                               asp-route-id="@i.Id"
+                               class="btn btn-primary btn-sm">
                                 Contratos
                             </a>
 
-                            <a asp-action="Eliminar" asp-route-id="@i.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                            <!-- Eliminar inmueble -->
+                            <a asp-action="Eliminar"
+                               asp-route-id="@i.Id"
+                               class="btn btn-danger btn-sm">
+                                Eliminar
+                            </a>
+
                         </div>
                     </td>
                 </tr>
