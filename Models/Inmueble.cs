@@ -51,13 +51,15 @@ namespace InmobiliariaUlP_2025.Models
         public int NoAmbientes { get; set; }
 
         // =========================
-        // COORDENADAS (VALIDADAS)
+        // COORDENADAS
         // =========================
+        [Required(ErrorMessage = "Debe ingresar la latitud.")]
         [Range(-90, 90, ErrorMessage = "La latitud debe estar entre -90 y 90.")]
-        public double Latitud { get; set; }
+        public double? Latitud { get; set; }
 
+        [Required(ErrorMessage = "Debe ingresar la longitud.")]
         [Range(-180, 180, ErrorMessage = "La longitud debe estar entre -180 y 180.")]
-        public double Longitud { get; set; }
+        public double? Longitud { get; set; }
 
         [Required(ErrorMessage = "Debe ingresar el precio.")]
         [Range(1, 99999999, ErrorMessage = "Debe ingresar un precio válido.")]

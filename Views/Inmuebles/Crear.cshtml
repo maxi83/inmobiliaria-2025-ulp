@@ -19,7 +19,7 @@
         <label asp-for="PropietarioId" class="form-label">Propietario</label>
         <select asp-for="PropietarioId" class="form-select">
             <option value="0">Seleccione propietario...</option>
-            @foreach (var p in ViewBag.Propietarios)
+            @foreach (var p in (IEnumerable<Propietario>)ViewBag.Propietarios)
             {
                 <option value="@p.Id">@p.Apellido @p.Nombre</option>
             }

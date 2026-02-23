@@ -12,7 +12,7 @@ namespace InmobiliariaUlP_2025.Repositories.Interfaces
         int Baja(int id);
 
         IList<Inmueble> ObtenerPorDisponibilidad(Disponibilidad dispo);
-        IList<Inmueble> ObtenerPorPropietario(int propietarioId);
+        //IList<Inmueble> ObtenerPorPropietario(int propietarioId);
 
         // 🔎 Filtro final
         IList<Inmueble> ObtenerDisponiblesEntreFechas(DateOnly inicio, DateOnly fin);

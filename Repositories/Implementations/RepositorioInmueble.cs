@@ -207,7 +207,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return lista;
         }
 
-        public IList<Inmueble> ObtenerPorPropietario(int propietarioId)
+       /* public IList<Inmueble> ObtenerPorPropietario(int propietarioId)
         {
             var lista = new List<Inmueble>();
             using var conn = GetConnection();
@@ -229,15 +229,21 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             return lista;
         }
-
+        */
         public IList<Inmueble> ObtenerDisponiblesEntreFechas(DateOnly inicio, DateOnly fin)
         {
             var lista = new List<Inmueble>();
             using var conn = GetConnection();
 
             var sql = @"
-                SELECT *
+                SELECT 
+                    i.Id, i.PropietarioId,
+                    p.Apellido, p.Nombre,
+                    i.Direccion, i.Uso, i.Tipo,
+                    i.NoAmbientes, i.Latitud, i.Longitud,
+                    i.Precio, i.Disponibilidad
                 FROM Inmuebles i
+                INNER JOIN Propietarios p ON p.Id = i.PropietarioId
                 WHERE i.Disponibilidad <> @suspendido
                 AND i.Id NOT IN (
                     SELECT c.InmuebleId
@@ -257,7 +263,27 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
-                lista.Add(new Inmueble(reader));
+            {
+                lista.Add(new Inmueble
+                {
+                    Id = reader.GetInt32(0),
+                    PropietarioId = reader.GetInt32(1),
+                    Propietario = new Propietario
+                    {
+                        Id = reader.GetInt32(1),
+                        Apellido = reader.GetString(2),
+                        Nombre = reader.GetString(3)
+                    },
+                    Direccion = reader.GetString(4),
+                    Uso = (Uso)reader.GetInt32(5),
+                    Tipo = (Tipo)reader.GetInt32(6),
+                    NoAmbientes = reader.GetInt32(7),
+                    Latitud = reader.GetDouble(8),
+                    Longitud = reader.GetDouble(9),
+                    Precio = reader.GetDecimal(10),
+                    Disponibilidad = (Disponibilidad)reader.GetInt32(11)
+                });
+            }
 
             return lista;
         }
