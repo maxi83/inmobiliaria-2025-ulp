@@ -17,15 +17,22 @@ namespace InmobiliariaUlP_2025.Controllers
             this.repoContrato = repoContrato;
         }
 
+        // =========================
+        // LISTADO
+        // =========================
+
         public IActionResult PorContrato(int id, int? inmuebleId, bool desdeInmueble = false)
         {
             ViewBag.Contrato = repoContrato.ObtenerPorId(id);
             ViewBag.InmuebleId = inmuebleId;
             ViewBag.DesdeInmueble = desdeInmueble;
 
-            var pagos = repoPago.ObtenerPorContrato(id);
-            return View(pagos);
+            return View(repoPago.ObtenerPorContrato(id));
         }
+
+        // =========================
+        // ALTA
+        // =========================
 
         public IActionResult Crear(int contratoId, int? inmuebleId, bool desdeInmueble = false)
         {
@@ -45,7 +52,6 @@ namespace InmobiliariaUlP_2025.Controllers
             return View(pago);
         }
 
-
         [HttpPost]
         public IActionResult Crear(Pago pago)
         {
@@ -58,13 +64,12 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(pago);
             }
 
-            // 🔥 VALIDACIÓN DE FECHA DE PAGO
+            // Regla de negocio: el pago debe estar dentro del período del contrato
             if (pago.FechaPago < contrato.FechaInicio ||
                 pago.FechaPago > contrato.FechaFin)
             {
                 ModelState.AddModelError("",
                     "La fecha del pago debe estar dentro del período del contrato.");
-
                 ViewBag.Contrato = contrato;
                 return View(pago);
             }
@@ -74,6 +79,10 @@ namespace InmobiliariaUlP_2025.Controllers
             return RedirectToAction(nameof(PorContrato),
                 new { id = pago.ContratoId });
         }
+
+        // =========================
+        // MODIFICACIÓN
+        // =========================
 
         public IActionResult Editar(int id)
         {
@@ -95,6 +104,10 @@ namespace InmobiliariaUlP_2025.Controllers
                 new { id = pago.ContratoId });
         }
 
+        // =========================
+        // BAJA (Solo Administrador)
+        // =========================
+
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
         {
@@ -113,10 +126,8 @@ namespace InmobiliariaUlP_2025.Controllers
 
             repoPago.Baja(id);
 
-            return RedirectToAction(nameof(PorContrato), 
+            return RedirectToAction(nameof(PorContrato),
                 new { id = pago.ContratoId });
         }
-
-
     }
 }

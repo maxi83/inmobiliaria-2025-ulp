@@ -1,19 +1,16 @@
-using Microsoft.AspNetCore.Mvc;              // Permite usar Controller, IActionResult, View, etc.
-using Microsoft.AspNetCore.Authorization;    // Permite usar [Authorize] y control por roles.
-using System.Security.Claims;                // Permite acceder a datos del usuario logueado (claims).
-using InmobiliariaUlP_2025.Models;           // Modelos del sistema (Usuario).
-using InmobiliariaUlP_2025.Repositories.Interfaces; // Interfaces para acceso a base de datos.
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using InmobiliariaUlP_2025.Models;
+using InmobiliariaUlP_2025.Repositories.Interfaces;
 
 namespace InmobiliariaUlP_2025.Controllers
 {
-    // Obliga a que el usuario esté autenticado para usar este controlador.
     [Authorize]
     public class UsuarioController : Controller
     {
-        // Repositorio que permite acceder a la tabla Usuarios.
         private readonly IRepositorioUsuario repo;
 
-        // Constructor: ASP.NET inyecta el repositorio automáticamente.
         public UsuarioController(IRepositorioUsuario repo)
         {
             this.repo = repo;
@@ -23,16 +20,14 @@ namespace InmobiliariaUlP_2025.Controllers
         // LISTADO (Solo Administrador)
         // =========================
 
-        // Solo usuarios con rol Administrador pueden ver la lista.
         [Authorize(Roles = "Administrador")]
         public IActionResult Index()
         {
-            // Obtiene todos los usuarios y los envía a la vista.
             return View(repo.ObtenerTodos());
         }
 
         // =========================
-        // CREAR USUARIO (Solo Admin)
+        // ALTA (Solo Administrador)
         // =========================
 
         [Authorize(Roles = "Administrador")]
@@ -45,18 +40,15 @@ namespace InmobiliariaUlP_2025.Controllers
         [HttpPost]
         public IActionResult Crear(Usuario usuario)
         {
-            // Verifica validaciones del modelo.
             if (!ModelState.IsValid)
                 return View(usuario);
 
-            // Inserta en la base.
             repo.Alta(usuario);
-
             return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // EDITAR (Solo Admin)
+        // MODIFICACIÓN (Solo Administrador)
         // =========================
 
         [Authorize(Roles = "Administrador")]
@@ -76,12 +68,11 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(usuario);
 
             repo.Modificacion(usuario);
-
             return RedirectToAction(nameof(Index));
         }
 
         // =========================
-        // ELIMINAR (Solo Admin)
+        // BAJA (Solo Administrador)
         // =========================
 
         [Authorize(Roles = "Administrador")]
@@ -105,18 +96,13 @@ namespace InmobiliariaUlP_2025.Controllers
         // PERFIL (Usuario Logueado)
         // =========================
 
-        // Permite que cualquier usuario logueado edite SU propio perfil.
         public IActionResult Perfil()
         {
-            // Obtiene el email guardado en el login (claim Name).
             var email = User.FindFirstValue(ClaimTypes.Name);
-
             if (string.IsNullOrEmpty(email))
                 return Unauthorized();
 
-            // Busca el usuario en la base.
             var usuario = repo.ObtenerPorEmail(email);
-
             if (usuario == null)
                 return NotFound();
 
@@ -126,18 +112,16 @@ namespace InmobiliariaUlP_2025.Controllers
         [HttpPost]
         public IActionResult Perfil(Usuario usuario, IFormFile? fotoArchivo)
         {
-            // Busca el usuario actual en base.
             var actual = repo.ObtenerPorId(usuario.Id);
             if (actual == null) return NotFound();
 
-            // Si escribió nueva contraseña, la actualiza.
+            // Permite actualizar contraseña si se ingresa una nueva
             if (!string.IsNullOrEmpty(usuario.Password))
                 actual.Password = usuario.Password;
 
-            // Si subió una foto nueva.
+            // Actualiza foto de perfil si se carga un archivo
             if (fotoArchivo != null && fotoArchivo.Length > 0)
             {
-                // Guarda el archivo en wwwroot/img/usuarios
                 var ruta = Path.Combine("wwwroot/img/usuarios", fotoArchivo.FileName);
 
                 using (var stream = new FileStream(ruta, FileMode.Create))
@@ -145,16 +129,13 @@ namespace InmobiliariaUlP_2025.Controllers
                     fotoArchivo.CopyTo(stream);
                 }
 
-                // Guarda la ruta en la base.
                 actual.Foto = "/img/usuarios/" + fotoArchivo.FileName;
             }
 
-            // Actualiza en la base.
             repo.Modificacion(actual);
 
             TempData["Mensaje"] = "Perfil actualizado correctamente";
-
-            return RedirectToAction(nameof(Index), "Propietarios");
+            return RedirectToAction("Index", "Propietarios");
         }
     }
 }

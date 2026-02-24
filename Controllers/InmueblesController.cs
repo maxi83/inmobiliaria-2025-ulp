@@ -8,20 +8,20 @@ namespace InmobiliariaUlP_2025.Controllers
     [Authorize]
     public class InmueblesController : Controller
     {
-        private readonly IRepositorioInmueble repositorioInmueble;
-        private readonly IRepositorioPropietario repositorioPropietario;
+        private readonly IRepositorioInmueble repoInmueble;
+        private readonly IRepositorioPropietario repoPropietario;
 
         public InmueblesController(
-            IRepositorioInmueble repositorioInmueble,
-            IRepositorioPropietario repositorioPropietario)
+            IRepositorioInmueble repoInmueble,
+            IRepositorioPropietario repoPropietario)
         {
-            this.repositorioInmueble = repositorioInmueble;
-            this.repositorioPropietario = repositorioPropietario;
+            this.repoInmueble = repoInmueble;
+            this.repoPropietario = repoPropietario;
         }
 
-        // ======================================================
-        // INDEX
-        // ======================================================
+        // =========================
+        // LISTADO
+        // =========================
 
         public IActionResult Index(
             Disponibilidad? dispo,
@@ -29,80 +29,68 @@ namespace InmobiliariaUlP_2025.Controllers
             DateTime? inicio,
             DateTime? fin)
         {
-            ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+            ViewBag.Propietarios = repoPropietario.ObtenerTodos();
 
-            var inmuebles = repositorioInmueble.ObtenerTodos();
+            var inmuebles = repoInmueble.ObtenerTodos();
 
+            // Filtro por disponibilidad entre fechas
             if (inicio.HasValue && fin.HasValue)
             {
                 var inicioDateOnly = DateOnly.FromDateTime(inicio.Value);
                 var finDateOnly = DateOnly.FromDateTime(fin.Value);
 
-                inmuebles = repositorioInmueble
+                inmuebles = repoInmueble
                     .ObtenerDisponiblesEntreFechas(inicioDateOnly, finDateOnly)
                     .ToList();
             }
 
             if (dispo.HasValue)
-            {
                 inmuebles = inmuebles
                     .Where(i => i.Disponibilidad == dispo.Value)
                     .ToList();
-            }
 
             if (propietarioId.HasValue)
-            {
                 inmuebles = inmuebles
                     .Where(i => i.PropietarioId == propietarioId.Value)
                     .ToList();
-            }
 
             return View(inmuebles);
         }
 
-        // ======================================================
-        // DETALLES
-        // ======================================================
-
         public IActionResult Detalles(int id)
         {
-            var inmueble = repositorioInmueble.Buscar(id);
-
-            if (inmueble == null)
-                return NotFound();
+            var inmueble = repoInmueble.Buscar(id);
+            if (inmueble == null) return NotFound();
 
             return View(inmueble);
         }
 
-        // ======================================================
-        // CREAR (GET)
-        // ======================================================
+        // =========================
+        // ALTA
+        // =========================
 
         public IActionResult Crear()
         {
-            ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+            ViewBag.Propietarios = repoPropietario.ObtenerTodos();
             return View();
         }
-
-        // ======================================================
-        // CREAR (POST)
-        // ======================================================
 
         [HttpPost]
         public IActionResult Crear(Inmueble inmueble)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+                ViewBag.Propietarios = repoPropietario.ObtenerTodos();
                 return View(inmueble);
             }
 
-            var resultado = repositorioInmueble.Alta(inmueble);
+            var resultado = repoInmueble.Alta(inmueble);
 
+            // Regla de negocio: evitar direcciones duplicadas
             if (resultado == -1)
             {
                 ViewBag.Error = "La dirección ya existe.";
-                ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+                ViewBag.Propietarios = repoPropietario.ObtenerTodos();
                 return View(inmueble);
             }
 
@@ -110,51 +98,43 @@ namespace InmobiliariaUlP_2025.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ======================================================
-        // EDITAR (GET)
-        // ======================================================
+        // =========================
+        // MODIFICACIÓN
+        // =========================
 
         public IActionResult Editar(int id)
         {
-            var inmueble = repositorioInmueble.Buscar(id);
+            var inmueble = repoInmueble.Buscar(id);
+            if (inmueble == null) return NotFound();
 
-            if (inmueble == null)
-                return NotFound();
-
-            ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+            ViewBag.Propietarios = repoPropietario.ObtenerTodos();
             return View(inmueble);
         }
-
-        // ======================================================
-        // EDITAR (POST)
-        // ======================================================
 
         [HttpPost]
         public IActionResult Editar(Inmueble inmueble)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Propietarios = repositorioPropietario.ObtenerTodos();
+                ViewBag.Propietarios = repoPropietario.ObtenerTodos();
                 return View(inmueble);
             }
 
-            repositorioInmueble.Modificacion(inmueble);
+            repoInmueble.Modificacion(inmueble);
 
             TempData["Mensaje"] = "Inmueble editado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        // ======================================================
-        // ELIMINAR (Solo Admin)
-        // ======================================================
+        // =========================
+        // BAJA (Solo Administrador)
+        // =========================
 
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
         {
-            var inmueble = repositorioInmueble.Buscar(id);
-
-            if (inmueble == null)
-                return NotFound();
+            var inmueble = repoInmueble.Buscar(id);
+            if (inmueble == null) return NotFound();
 
             return View(inmueble);
         }
@@ -163,8 +143,9 @@ namespace InmobiliariaUlP_2025.Controllers
         [HttpPost]
         public IActionResult ConfirmarEliminar(int id)
         {
-            var resultado = repositorioInmueble.Baja(id);
+            var resultado = repoInmueble.Baja(id);
 
+            // Regla de negocio: no permitir eliminar si tiene contratos
             if (resultado == -1)
             {
                 TempData["Error"] =
