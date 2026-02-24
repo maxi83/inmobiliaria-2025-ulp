@@ -105,27 +105,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return res;
         }
 
-        public bool TieneContratosVigentes(int inmuebleId)
-        {
-            using var conn = new MySqlConnection(connectionString);
-
-            var sql = @"
-                SELECT COUNT(*)
-                FROM Contratos
-                WHERE InmuebleId = @id
-                AND FechaInicio <= CURDATE()
-                AND FechaFin >= CURDATE()
-            ";
-
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@id", inmuebleId);
-
-            conn.Open();
-            var cantidad = Convert.ToInt32(cmd.ExecuteScalar());
-
-            return cantidad > 0;
-        }
-
+        
         public IList<Contrato> ObtenerPorInmueble(int inmuebleId)
         {
             var res = new List<Contrato>();
@@ -171,28 +151,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return res;
         }
 
-        public IList<Contrato> ObtenerPorInquilino(int inquilinoId)
-        {
-            var res = new List<Contrato>();
-            using var conn = new MySqlConnection(connectionString);
-
-            var sql = @"
-                SELECT *
-                FROM Contratos
-                WHERE InquilinoId = @id
-            ";
-
-            using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@id", inquilinoId);
-
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-
-            while (reader.Read())
-                res.Add(new Contrato(reader));
-
-            return res;
-        }
+        
 
         // =========================
         // ABM
@@ -360,13 +319,6 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             conn.Open();
             return cmd.ExecuteNonQuery();
-        }
-
-        public int RenovarContrato(Contrato contrato, int meses)
-        {
-            contrato.FechaInicio = contrato.FechaFin;
-            contrato.FechaFin = contrato.FechaInicio.AddMonths(meses);
-            return Alta(contrato);
         }
 
         public int ObtenerSiguienteNumeroContrato()

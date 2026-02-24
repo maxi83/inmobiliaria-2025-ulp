@@ -87,7 +87,8 @@ namespace InmobiliariaUlP_2025.Controllers
 
             // Se obtiene la lista completa desde el repositorio
             // y se envía como modelo a la vista.
-            return View(repoContrato.ObtenerTodos());
+            var contratos = repoContrato.ObtenerTodos();
+            return View(contratos);
         }
 
 
@@ -106,7 +107,8 @@ namespace InmobiliariaUlP_2025.Controllers
 
             // Devuelve la vista Index reutilizándola
             // pero con contratos filtrados.
-            return View("Index", repoContrato.ObtenerPorInmueble(id));
+            var contratos = repoContrato.ObtenerPorInmueble(id);
+            return View("Index", contratos);
         }
 
 
@@ -175,6 +177,11 @@ namespace InmobiliariaUlP_2025.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Vigentes()
+        {
+            ViewBag.DesdeInmueble = false;
+            return View("Index", repoContrato.ObtenerVigentes());
+        }
 
         // =====================================================
         // TERMINAR CONTRATO ANTICIPADAMENTE
@@ -248,6 +255,39 @@ namespace InmobiliariaUlP_2025.Controllers
                     $"El inquilino adeuda {mesesAdeudados} mes(es).";
             }
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Renovar(int id)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+
+            if (contrato == null)
+                return NotFound();
+
+            return View(contrato);
+        }
+
+        [HttpPost]
+        public IActionResult Renovar(Contrato contrato)
+        {
+            if (!ModelState.IsValid)
+                return View(contrato);
+
+            if (repoContrato.EstaOcupado(
+                    contrato.InmuebleId,
+                    contrato.FechaInicio,
+                    contrato.FechaFin))
+            {
+                ModelState.AddModelError("",
+                    "El inmueble ya está ocupado en esas fechas.");
+
+                return View(contrato);
+            }
+
+            repoContrato.Alta(contrato);
+
+            TempData["Mensaje"] = "Contrato renovado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 

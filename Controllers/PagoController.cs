@@ -75,6 +75,25 @@ namespace InmobiliariaUlP_2025.Controllers
                 new { id = pago.ContratoId });
         }
 
+        public IActionResult Editar(int id)
+        {
+            var pago = repoPago.ObtenerPorId(id);
+            if (pago == null) return NotFound();
+
+            return View(pago);
+        }
+
+        [HttpPost]
+        public IActionResult Editar(Pago pago)
+        {
+            if (!ModelState.IsValid)
+                return View(pago);
+
+            repoPago.Modificacion(pago);
+
+            return RedirectToAction(nameof(PorContrato),
+                new { id = pago.ContratoId });
+        }
 
         [Authorize(Roles = "Administrador")]
         public IActionResult Eliminar(int id)
