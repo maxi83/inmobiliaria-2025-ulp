@@ -36,6 +36,12 @@ namespace InmobiliariaUlP_2025.Controllers
             // Filtro por disponibilidad entre fechas
             if (inicio.HasValue && fin.HasValue)
             {
+                if (fin < inicio)
+                {
+                    TempData["Error"] = "La fecha Hasta no puede ser menor que Desde.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var inicioDateOnly = DateOnly.FromDateTime(inicio.Value);
                 var finDateOnly = DateOnly.FromDateTime(fin.Value);
 

@@ -1,49 +1,62 @@
 /* _content/InmobiliariaUlP-2025/Views/Shared/_Layout.cshtml.rz.scp.css */
-/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand[b-wy11nsg2ic] {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+body[b-wy11nsg2ic] {
+    background: #0f141a;
+    color: #e6e6e6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-a[b-wy11nsg2ic] {
-  color: #0077cc;
+.navbar-brand[b-wy11nsg2ic] {
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
-.btn-primary[b-wy11nsg2ic] {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.nav-link[b-wy11nsg2ic] {
+    color: #cbd5e1 !important;
+    transition: 0.2s ease;
 }
 
-.nav-pills .nav-link.active[b-wy11nsg2ic], .nav-pills .show > .nav-link[b-wy11nsg2ic] {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.nav-link:hover[b-wy11nsg2ic] {
+    color: #ffffff !important;
 }
 
-.border-top[b-wy11nsg2ic] {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom[b-wy11nsg2ic] {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow[b-wy11nsg2ic] {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.navbar .nav-link.active-menu[b-wy11nsg2ic] {
+    color: #0d6efd !important;
+    font-weight: 700 !important;
+    border-bottom: 3px solid #0d6efd !important;
+    padding-bottom: 4px;
 }
 
-button.accept-policy[b-wy11nsg2ic] {
-  font-size: 1rem;
-  line-height: inherit;
+.table thead[b-wy11nsg2ic] {
+    background-color: #1c2430;
 }
 
-.footer[b-wy11nsg2ic] {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+.table th[b-wy11nsg2ic] {
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.table tbody tr:hover[b-wy11nsg2ic] {
+    background-color: #1f2937;
+}
+
+footer[b-wy11nsg2ic] {
+    border-top: 1px solid #1f2937 !important;
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.form-control[b-wy11nsg2ic] {
+    background-color: #1f2937;
+    border: 1px solid #334155;
+    color: #ffffff;
+}
+
+.form-control:focus[b-wy11nsg2ic] {
+    background-color: #1f2937;
+    border-color: #0d6efd;
+    box-shadow: none;
+    color: #ffffff;
+}
+body[b-wy11nsg2ic] {
+    background: red !important;
 }

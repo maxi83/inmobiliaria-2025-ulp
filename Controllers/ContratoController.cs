@@ -69,7 +69,6 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(contrato);
             }
 
-            // Regla de negocio: evitar superposición de contratos
             if (repoContrato.EstaOcupado(
                     contrato.InmuebleId,
                     contrato.FechaInicio,
@@ -94,6 +93,74 @@ namespace InmobiliariaUlP_2025.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // =========================
+        // EDICIÓN
+        // =========================
+
+        public IActionResult Editar(int id)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null)
+                return NotFound();
+
+            CargarCombos();
+            return View(contrato);
+        }
+
+        [HttpPost]
+        public IActionResult Editar(Contrato contrato)
+        {
+            if (!ModelState.IsValid)
+            {
+                CargarCombos();
+                return View(contrato);
+            }
+
+            repoContrato.Modificacion(contrato);
+
+            TempData["Mensaje"] = "Contrato modificado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================
+        // BAJA
+        // =========================
+
+        [Authorize(Roles = "Administrador")]
+        public IActionResult Eliminar(int id)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            return View(contrato);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost, ActionName("Eliminar")]
+        public IActionResult EliminarConfirmado(int id)
+        {
+            var contrato = repoContrato.ObtenerPorId(id);
+            if (contrato == null) return NotFound();
+
+            var pagos = repoPago.ObtenerPorContrato(id);
+            if (pagos.Any())
+            {
+                TempData["Error"] = "No se puede eliminar el contrato porque tiene pagos registrados.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            repoContrato.Baja(id);
+
+            var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
+            if (inmueble != null)
+            {
+                inmueble.Disponibilidad = Disponibilidad.DESOCUPADO;
+                repoInmueble.Modificacion(inmueble);
+            }
+
+            TempData["Mensaje"] = "Contrato eliminado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
         // =========================
         // TERMINACIÓN ANTICIPADA
         // =========================
@@ -127,7 +194,6 @@ namespace InmobiliariaUlP_2025.Controllers
             int mesesTotales = (int)((finOriginal - inicio).TotalDays / 30);
             int mesesCumplidos = (int)((finNuevo - inicio).TotalDays / 30);
 
-            // Regla de negocio: multa por rescisión anticipada
             decimal multa = mesesCumplidos < mesesTotales / 2
                 ? contrato.MontoMensual * 2
                 : contrato.MontoMensual;
@@ -162,16 +228,26 @@ namespace InmobiliariaUlP_2025.Controllers
             var contrato = repoContrato.ObtenerPorId(id);
             if (contrato == null) return NotFound();
 
-            return View(contrato);
-        }
+            var nuevoInicio = contrato.FechaFin.AddDays(1);
+            var nuevoFin = nuevoInicio.AddYears(1);
 
+            var renovacion = new Contrato
+            {
+                InmuebleId = contrato.InmuebleId,
+                InquilinoId = contrato.InquilinoId,
+                FechaInicio = nuevoInicio,
+                FechaFin = nuevoFin,
+                MontoMensual = contrato.MontoMensual
+            };
+
+            return View(renovacion);
+        }
         [HttpPost]
         public IActionResult Renovar(Contrato contrato)
         {
             if (!ModelState.IsValid)
                 return View(contrato);
 
-            // Regla de negocio: validar disponibilidad en el nuevo período
             if (repoContrato.EstaOcupado(
                     contrato.InmuebleId,
                     contrato.FechaInicio,
@@ -189,7 +265,7 @@ namespace InmobiliariaUlP_2025.Controllers
         }
 
         // =========================
-        // MÉTODOS AUXILIARES
+        // AUXILIARES
         // =========================
 
         private void CargarCombos()

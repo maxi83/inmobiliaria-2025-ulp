@@ -9,7 +9,9 @@
 <a class="btn btn-primary mb-3"
    asp-controller="Pago"
    asp-action="Crear"
-   asp-route-contratoId="@ViewBag.Contrato.Id">
+   asp-route-contratoId="@ViewBag.Contrato.Id"
+   asp-route-inmuebleId="@ViewBag.InmuebleId"
+   asp-route-desdeInmueble="@ViewBag.DesdeInmueble">
     Nuevo pago
 </a>
 
@@ -33,8 +35,20 @@
     </tbody>
 </table>
 
-<a asp-controller="Contrato"
-   asp-action="Index"
-   class="btn btn-secondary">
-    Volver
-</a>
+@if (ViewBag.DesdeInmueble == true)
+{
+    <a asp-controller="Contrato"
+       asp-action="PorInmueble"
+       asp-route-id="@ViewBag.InmuebleId"
+       class="btn btn-secondary">
+        Volver
+    </a>
+}
+else
+{
+    <a asp-controller="Contrato"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Volver
+    </a>
+}

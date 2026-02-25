@@ -82,8 +82,6 @@ C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\8plxpkf
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\ckkzquoeaq-muycvpuwrr.gz
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\brxxfilr34-87fc7y1x7t.gz
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\unizzv7nsk-mlv21k5csn.gz
-C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\i37foltooe-d3klucsmct.gz
-C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\compressed\cykvmgwhk1-d3klucsmct.gz
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\Maxi\Documents\InmobiliariaUlP-2025\obj\Debug\net9.0\staticwebassets.development.json
@@ -115,3 +113,5 @@ C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\Inmobili.9DC55099.
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\InmobiliariaUlP-2025.sourcelink.json
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\bin\Debug\net9.0\MySqlConnector.dll
 C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\compressed\8jsxhn56i1-510ikvxpn5.gz
+C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\compressed\i37foltooe-6vfwuq5pgb.gz
+C:\Users\Maxi\Documents\InmobiliariaULP-2025\obj\Debug\net9.0\compressed\cykvmgwhk1-6vfwuq5pgb.gz

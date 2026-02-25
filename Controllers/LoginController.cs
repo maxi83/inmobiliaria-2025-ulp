@@ -25,11 +25,10 @@ namespace InmobiliariaUlP_2025.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(string usuario, string clave)
+        public async Task<IActionResult> Index(string usuario, string clave)
         {
             var user = repoUsuario.ObtenerPorEmail(usuario);
 
-            // Validación básica de credenciales
             if (user != null && user.Password == clave)
             {
                 var claims = new List<Claim>
@@ -47,10 +46,10 @@ namespace InmobiliariaUlP_2025.Controllers
 
                 var principal = new ClaimsPrincipal(identity);
 
-                HttpContext.SignInAsync(
+                await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     principal
-                ).Wait();
+                );
 
                 return RedirectToAction("Index", "Propietarios");
             }
@@ -63,11 +62,11 @@ namespace InmobiliariaUlP_2025.Controllers
         // LOGOUT
         // =========================
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.SignOutAsync(
+            await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme
-            ).Wait();
+            );
 
             return RedirectToAction(nameof(Index));
         }

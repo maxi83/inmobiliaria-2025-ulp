@@ -27,7 +27,6 @@ namespace InmobiliariaUlP_2025.Models
 
         [Required(ErrorMessage = "La fecha de pago es obligatoria.")]
         [Display(Name = "Fecha de pago")]
-        [CustomValidation(typeof(Pago), nameof(ValidarFechaPago))]
         public DateOnly FechaPago { get; set; }
 
         [Required(ErrorMessage = "El importe es obligatorio.")]

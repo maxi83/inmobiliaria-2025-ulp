@@ -26,12 +26,20 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             var sql = @"
                 SELECT 
-                    c.*,
-                    i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
-                    inm.Id AS InmId, inm.Direccion
+                    c.Id,
+                    c.NumeroContrato,
+                    c.InmuebleId,
+                    c.InquilinoId,
+                    c.FechaInicio,
+                    c.FechaFin,
+                    c.MontoMensual,
+                    c.FechaFinOriginal,
+                    i.Nombre AS InqNombre,
+                    i.Apellido AS InqApellido,
+                    inm.Direccion
                 FROM Contratos c
-                INNER JOIN Inquilinos i ON c.InquilinoId = i.Id
-                INNER JOIN Inmuebles inm ON c.InmuebleId = inm.Id
+                INNER JOIN Inquilinos i ON i.Id = c.InquilinoId
+                INNER JOIN Inmuebles inm ON inm.Id = c.InmuebleId
             ";
 
             using var cmd = new MySqlCommand(sql, conn);
@@ -40,19 +48,27 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             while (reader.Read())
             {
-                var contrato = new Contrato(reader);
-
-                contrato.Inquilino = new Inquilino
+                var contrato = new Contrato
                 {
-                    Id = reader.GetInt32("InqId"),
-                    Nombre = reader.GetString("InqNombre"),
-                    Apellido = reader.GetString("InqApellido")
-                };
-
-                contrato.Inmueble = new Inmueble
-                {
-                    Id = reader.GetInt32("InmId"),
-                    Direccion = reader.GetString("Direccion")
+                    Id = reader.GetInt32("Id"),
+                    NumeroContrato = reader.GetInt32("NumeroContrato"),
+                    InmuebleId = reader.GetInt32("InmuebleId"),
+                    InquilinoId = reader.GetInt32("InquilinoId"),
+                    FechaInicio = DateOnly.FromDateTime(reader.GetDateTime("FechaInicio")),
+                    FechaFin = DateOnly.FromDateTime(reader.GetDateTime("FechaFin")),
+                    MontoMensual = reader.GetDecimal("MontoMensual"),
+                    FechaFinOriginal = reader.IsDBNull(reader.GetOrdinal("FechaFinOriginal"))
+                        ? null
+                        : DateOnly.FromDateTime(reader.GetDateTime("FechaFinOriginal")),
+                    Inquilino = new Inquilino
+                    {
+                        Nombre = reader.GetString("InqNombre"),
+                        Apellido = reader.GetString("InqApellido")
+                    },
+                    Inmueble = new Inmueble
+                    {
+                        Direccion = reader.GetString("Direccion")
+                    }
                 };
 
                 res.Add(contrato);
@@ -68,7 +84,14 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             var sql = @"
                 SELECT 
-                    c.*,
+                    c.Id,
+                    c.NumeroContrato,
+                    c.InmuebleId,
+                    c.InquilinoId,
+                    c.FechaInicio,
+                    c.FechaFin,
+                    c.MontoMensual,
+                    c.FechaFinOriginal,
                     i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
                     inm.Id AS InmId, inm.Direccion
                 FROM Contratos c
@@ -105,7 +128,6 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return res;
         }
 
-        
         public IList<Contrato> ObtenerPorInmueble(int inmuebleId)
         {
             var res = new List<Contrato>();
@@ -113,7 +135,14 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             var sql = @"
                 SELECT 
-                    c.*,
+                    c.Id,
+                    c.NumeroContrato,
+                    c.InmuebleId,
+                    c.InquilinoId,
+                    c.FechaInicio,
+                    c.FechaFin,
+                    c.MontoMensual,
+                    c.FechaFinOriginal,
                     i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
                     inm.Id AS InmId, inm.Direccion
                 FROM Contratos c
@@ -151,8 +180,6 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return res;
         }
 
-        
-
         // =========================
         // ABM
         // =========================
@@ -163,7 +190,14 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             var sql = @"
                 SELECT 
-                    c.*,
+                    c.Id,
+                    c.NumeroContrato,
+                    c.InmuebleId,
+                    c.InquilinoId,
+                    c.FechaInicio,
+                    c.FechaFin,
+                    c.MontoMensual,
+                    c.FechaFinOriginal,
                     i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
                     inm.Id AS InmId, inm.Direccion
                 FROM Contratos c
@@ -197,6 +231,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
             return contrato;
         }
+
         public int Alta(Contrato contrato)
         {
             using var conn = new MySqlConnection(connectionString);
@@ -249,27 +284,16 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int Baja(int id)
         {
-            try
-            {
-                using var conn = new MySqlConnection(connectionString);
+            using var conn = new MySqlConnection(connectionString);
 
-                var sql = @"DELETE FROM Contratos WHERE Id = @id";
+            var sql = @"DELETE FROM Contratos WHERE Id = @id";
 
-                using var cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@id", id);
+            using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", id);
 
-                conn.Open();
-                return cmd.ExecuteNonQuery();
-            }
-            catch (MySqlException ex)
-            {
-                if (ex.Number == 1451)
-                    return -1; // Tiene pagos asociados
-
-                throw;
-            }
+            conn.Open();
+            return cmd.ExecuteNonQuery();
         }
-
 
         // =========================
         // LÓGICA
@@ -325,10 +349,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         {
             using var conn = new MySqlConnection(connectionString);
 
-            var sql = @"
-                SELECT IFNULL(MAX(NumeroContrato),0) + 1
-                FROM Contratos
-            ";
+            var sql = @"SELECT IFNULL(MAX(NumeroContrato),0) + 1 FROM Contratos";
 
             using var cmd = new MySqlCommand(sql, conn);
 

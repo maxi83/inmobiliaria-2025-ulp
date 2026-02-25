@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InmobiliariaUlP-2025")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a123b790fdd0b3da731cc7468c0249c9adf3e0d4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+691a54c61079feb35840d4ab422f40ec5bca52ac")]
 [assembly: System.Reflection.AssemblyProductAttribute("InmobiliariaUlP-2025")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InmobiliariaUlP-2025")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

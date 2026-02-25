@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using InmobiliariaUlP_2025.Models;
 using InmobiliariaUlP_2025.Repositories.Interfaces;
@@ -115,24 +117,50 @@ namespace InmobiliariaUlP_2025.Controllers
             var actual = repo.ObtenerPorId(usuario.Id);
             if (actual == null) return NotFound();
 
-            // Permite actualizar contraseña si se ingresa una nueva
+            // Actualiza contraseña si se ingresa nueva
             if (!string.IsNullOrEmpty(usuario.Password))
                 actual.Password = usuario.Password;
 
-            // Actualiza foto de perfil si se carga un archivo
+            // Actualiza foto si se carga archivo
             if (fotoArchivo != null && fotoArchivo.Length > 0)
             {
-                var ruta = Path.Combine("wwwroot/img/usuarios", fotoArchivo.FileName);
+                var carpeta = Path.Combine("wwwroot", "img", "usuarios");
+                if (!Directory.Exists(carpeta))
+                    Directory.CreateDirectory(carpeta);
+
+                var nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(fotoArchivo.FileName);
+                var ruta = Path.Combine(carpeta, nombreArchivo);
 
                 using (var stream = new FileStream(ruta, FileMode.Create))
                 {
                     fotoArchivo.CopyTo(stream);
                 }
 
-                actual.Foto = "/img/usuarios/" + fotoArchivo.FileName;
+                actual.Foto = "/img/usuarios/" + nombreArchivo;
             }
 
             repo.Modificacion(actual);
+
+            // 🔄 Re-crear los claims para actualizar la foto sin reloguear
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, actual.Email),
+                new Claim(ClaimTypes.Role, actual.Rol),
+                new Claim("Id", actual.Id.ToString()),
+                new Claim("Foto", actual.Foto ?? "")
+            };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            var principal = new ClaimsPrincipal(identity);
+
+            HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal
+            ).Wait();
 
             TempData["Mensaje"] = "Perfil actualizado correctamente";
             return RedirectToAction("Index", "Propietarios");

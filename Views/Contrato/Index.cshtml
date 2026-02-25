@@ -17,6 +17,7 @@
     ViewData["Title"] = "Contratos";
     bool desdeInmueble = ViewBag.DesdeInmueble ?? false;
 }
+
 @if (TempData["Mensaje"] != null)
 {
     <div class="alert alert-success">
@@ -30,7 +31,6 @@
         @TempData["Error"]
     </div>
 }
-
 
 <h1>Contratos</h1>
 
@@ -59,17 +59,17 @@
 @foreach (var c in Model)
 {
         <tr>
-            <td>@c.Id</td>
+            <td>@c.NumeroContrato</td>
             <td>@c.Inmueble?.Direccion</td>
             <td>@c.Inquilino?.Apellido, @c.Inquilino?.Nombre</td>
             <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
             <td>@c.FechaFin.ToString("dd/MM/yyyy")</td>
-            <td>$ @c.MontoMensual</td>
+            <td>$ @c.MontoMensual.ToString("N0")</td>
             <td>
                 <div class="d-flex gap-1">
 
                     @if (!desdeInmueble)
-                    {
+                    {       
                         <a asp-action="Editar" asp-route-id="@c.Id" class="btn btn-secondary btn-sm">Editar</a>
                         <a asp-action="Eliminar" asp-route-id="@c.Id" class="btn btn-danger btn-sm">Eliminar</a>
                         <a asp-action="Terminar" asp-route-id="@c.Id" class="btn btn-warning btn-sm">Rescindir</a>
@@ -79,6 +79,8 @@
                     <a asp-controller="Pago"
                        asp-action="PorContrato"
                        asp-route-id="@c.Id"
+                       asp-route-inmuebleId="@c.InmuebleId"
+                       asp-route-desdeInmueble="@(desdeInmueble)"
                        class="btn btn-info btn-sm">
                         Pagos
                     </a>
