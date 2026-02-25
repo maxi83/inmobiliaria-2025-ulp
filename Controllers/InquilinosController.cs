@@ -70,6 +70,19 @@ namespace InmobiliariaUlP_2025.Controllers
             if (!ModelState.IsValid)
                 return View(inquilino);
 
+            // 🔥 Verificar duplicado (excluyendo el mismo registro)
+            var existeDuplicado = repoInquilino.ObtenerTodos()
+                .Any(i =>
+                    (i.Dni == inquilino.Dni || i.Email == inquilino.Email)
+                    && i.Id != inquilino.Id);
+
+            if (existeDuplicado)
+            {
+                ModelState.AddModelError("",
+                    "Ya existe otro inquilino con ese DNI o email.");
+                return View(inquilino);
+            }
+
             repoInquilino.Modificacion(inquilino);
 
             TempData["Mensaje"] = "Inquilino modificado correctamente.";

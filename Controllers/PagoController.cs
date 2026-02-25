@@ -95,8 +95,20 @@ namespace InmobiliariaUlP_2025.Controllers
         [HttpPost]
         public IActionResult Editar(Pago pago)
         {
+            var contrato = repoContrato.ObtenerPorId(pago.ContratoId);
+            if (contrato == null) return NotFound();
+
             if (!ModelState.IsValid)
                 return View(pago);
+
+            //  Validar que la fecha esté dentro del período del contrato
+            if (pago.FechaPago < contrato.FechaInicio ||
+                pago.FechaPago > contrato.FechaFin)
+            {
+                ModelState.AddModelError("",
+                    "La fecha del pago debe estar dentro del período del contrato.");
+                return View(pago);
+            }
 
             repoPago.Modificacion(pago);
 

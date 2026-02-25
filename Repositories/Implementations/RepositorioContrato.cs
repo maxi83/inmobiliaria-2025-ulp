@@ -15,6 +15,11 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
                 ?? throw new Exception("ConnectionString no configurada");
         }
 
+        private MySqlConnection GetConnection()
+        {
+            return new MySqlConnection(connectionString);
+        }
+
         // =========================
         // LISTADOS
         // =========================
@@ -22,7 +27,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         public IList<Contrato> ObtenerTodos()
         {
             var res = new List<Contrato>();
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 SELECT 
@@ -80,18 +85,11 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         public IList<Contrato> ObtenerVigentes()
         {
             var res = new List<Contrato>();
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 SELECT 
-                    c.Id,
-                    c.NumeroContrato,
-                    c.InmuebleId,
-                    c.InquilinoId,
-                    c.FechaInicio,
-                    c.FechaFin,
-                    c.MontoMensual,
-                    c.FechaFinOriginal,
+                    c.*,
                     i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
                     inm.Id AS InmId, inm.Direccion
                 FROM Contratos c
@@ -131,18 +129,11 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
         public IList<Contrato> ObtenerPorInmueble(int inmuebleId)
         {
             var res = new List<Contrato>();
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 SELECT 
-                    c.Id,
-                    c.NumeroContrato,
-                    c.InmuebleId,
-                    c.InquilinoId,
-                    c.FechaInicio,
-                    c.FechaFin,
-                    c.MontoMensual,
-                    c.FechaFinOriginal,
+                    c.*,
                     i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
                     inm.Id AS InmId, inm.Direccion
                 FROM Contratos c
@@ -180,24 +171,13 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return res;
         }
 
-        // =========================
-        // ABM
-        // =========================
-
         public Contrato? ObtenerPorId(int id)
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 SELECT 
-                    c.Id,
-                    c.NumeroContrato,
-                    c.InmuebleId,
-                    c.InquilinoId,
-                    c.FechaInicio,
-                    c.FechaFin,
-                    c.MontoMensual,
-                    c.FechaFinOriginal,
+                    c.*,
                     i.Id AS InqId, i.Nombre AS InqNombre, i.Apellido AS InqApellido,
                     inm.Id AS InmId, inm.Direccion
                 FROM Contratos c
@@ -234,7 +214,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int Alta(Contrato contrato)
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 INSERT INTO Contratos
@@ -257,7 +237,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int Modificacion(Contrato contrato)
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 UPDATE Contratos SET
@@ -284,7 +264,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int Baja(int id)
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"DELETE FROM Contratos WHERE Id = @id";
 
@@ -295,13 +275,9 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
             return cmd.ExecuteNonQuery();
         }
 
-        // =========================
-        // LÓGICA
-        // =========================
-
         public bool EstaOcupado(int inmuebleId, DateOnly inicio, DateOnly fin, int? contratoId = null)
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 SELECT COUNT(*)
@@ -329,7 +305,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int TerminarContratoAnticipadamente(int id, DateOnly nuevaFechaFin)
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"
                 UPDATE Contratos
@@ -347,7 +323,7 @@ namespace InmobiliariaUlP_2025.Repositories.Implementations
 
         public int ObtenerSiguienteNumeroContrato()
         {
-            using var conn = new MySqlConnection(connectionString);
+            using var conn = GetConnection();
 
             var sql = @"SELECT IFNULL(MAX(NumeroContrato),0) + 1 FROM Contratos";
 

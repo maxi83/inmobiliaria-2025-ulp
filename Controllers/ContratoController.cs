@@ -57,7 +57,14 @@ namespace InmobiliariaUlP_2025.Controllers
         public IActionResult Crear()
         {
             CargarCombos();
-            return View(new Contrato());
+
+            var contrato = new Contrato
+            {
+                FechaInicio = DateOnly.FromDateTime(DateTime.Today),
+                FechaFin = DateOnly.FromDateTime(DateTime.Today.AddMonths(12))
+            };
+
+            return View(contrato);
         }
 
         [HttpPost]
@@ -116,12 +123,33 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(contrato);
             }
 
+            // Guarda cambios
             repoContrato.Modificacion(contrato);
+
+            // 🔥 Recalcula disponibilidad
+            var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
+
+            if (inmueble != null && inmueble.Disponibilidad != Disponibilidad.SUSPENDIDO)
+            {
+                var hoy = DateOnly.FromDateTime(DateTime.Today);
+
+                bool ocupado = repoContrato.EstaOcupado(
+                    contrato.InmuebleId,
+                    hoy,
+                    hoy,
+                    null   // acá NO excluimos nada, ya está actualizado
+                );
+
+                inmueble.Disponibilidad = ocupado
+                    ? Disponibilidad.OCUPADO
+                    : Disponibilidad.DESOCUPADO;
+
+                repoInmueble.Modificacion(inmueble);
+            }
 
             TempData["Mensaje"] = "Contrato modificado correctamente.";
             return RedirectToAction(nameof(Index));
         }
-
         // =========================
         // BAJA
         // =========================
@@ -135,26 +163,35 @@ namespace InmobiliariaUlP_2025.Controllers
             return View(contrato);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpPost, ActionName("Eliminar")]
         public IActionResult EliminarConfirmado(int id)
         {
             var contrato = repoContrato.ObtenerPorId(id);
-            if (contrato == null) return NotFound();
+            if (contrato == null)
+                return NotFound();
 
-            var pagos = repoPago.ObtenerPorContrato(id);
-            if (pagos.Any())
-            {
-                TempData["Error"] = "No se puede eliminar el contrato porque tiene pagos registrados.";
-                return RedirectToAction(nameof(Index));
-            }
+            int inmuebleId = contrato.InmuebleId;
 
             repoContrato.Baja(id);
 
-            var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
-            if (inmueble != null)
+            // 🔥 Recalcula disponibilidad después de eliminar
+            var inmueble = repoInmueble.Buscar(inmuebleId);
+
+            if (inmueble != null && inmueble.Disponibilidad != Disponibilidad.SUSPENDIDO)
             {
-                inmueble.Disponibilidad = Disponibilidad.DESOCUPADO;
+                var hoy = DateOnly.FromDateTime(DateTime.Today);
+
+                bool ocupado = repoContrato.EstaOcupado(
+                    inmuebleId,
+                    hoy,
+                    hoy,
+                    null
+                );
+
+                inmueble.Disponibilidad = ocupado
+                    ? Disponibilidad.OCUPADO
+                    : Disponibilidad.DESOCUPADO;
+
                 repoInmueble.Modificacion(inmueble);
             }
 
@@ -270,8 +307,13 @@ namespace InmobiliariaUlP_2025.Controllers
 
         private void CargarCombos()
         {
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+
             ViewBag.Inmuebles = repoInmueble.ObtenerTodos()
-                .Where(i => i.Disponibilidad != Disponibilidad.SUSPENDIDO)
+                .Where(i =>
+                    i.Disponibilidad != Disponibilidad.SUSPENDIDO &&
+                    !repoContrato.EstaOcupado(i.Id, hoy, hoy, null)
+                )
                 .Select(i => new SelectListItem
                 {
                     Value = i.Id.ToString(),

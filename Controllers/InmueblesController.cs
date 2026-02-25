@@ -126,6 +126,19 @@ namespace InmobiliariaUlP_2025.Controllers
                 return View(inmueble);
             }
 
+            // Verificar dirección duplicada (excepto el mismo inmueble)
+            var existentes = repoInmueble.ObtenerTodos()
+                .Any(i => i.Direccion == inmueble.Direccion 
+                        && i.Id != inmueble.Id);
+
+            if (existentes)
+            {
+                ModelState.AddModelError("Direccion", 
+                    "Ya existe un inmueble con esa dirección.");
+                ViewBag.Propietarios = repoPropietario.ObtenerTodos();
+                return View(inmueble);
+            }
+
             repoInmueble.Modificacion(inmueble);
 
             TempData["Mensaje"] = "Inmueble editado correctamente.";
