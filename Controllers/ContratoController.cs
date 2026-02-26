@@ -126,7 +126,7 @@ namespace InmobiliariaUlP_2025.Controllers
             // Guarda cambios
             repoContrato.Modificacion(contrato);
 
-            // 🔥 Recalcula disponibilidad
+            //  Recalcula disponibilidad
             var inmueble = repoInmueble.Buscar(contrato.InmuebleId);
 
             if (inmueble != null && inmueble.Disponibilidad != Disponibilidad.SUSPENDIDO)
