@@ -174,7 +174,7 @@ namespace InmobiliariaUlP_2025.Controllers
 
             repoContrato.Baja(id);
 
-            // 🔥 Recalcula disponibilidad después de eliminar
+            // Recalcula disponibilidad después de eliminar
             var inmueble = repoInmueble.Buscar(inmuebleId);
 
             if (inmueble != null && inmueble.Disponibilidad != Disponibilidad.SUSPENDIDO)
